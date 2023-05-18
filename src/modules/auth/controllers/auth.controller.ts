@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Request,
   UseGuards,
@@ -30,5 +31,16 @@ export class AuthController {
     const jwtToken: string = await this.authService.login(req.user);
 
     return { access_token: jwtToken };
+  }
+
+  @Post('verification/:userId')
+  @HttpCode(HttpStatus.OK)
+  async verify(
+    @Param('userId') userId: string,
+    @Body('verificationCode') verificationCode: string,
+  ) {
+    await this.authService.verify(userId.trim(), verificationCode.trim());
+
+    return { message: 'Verify successfully' };
   }
 }

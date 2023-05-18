@@ -15,6 +15,8 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../../../common/jwt/jwt-payload.interface';
 import { SendEmailService } from '../../../common/mailer/send-email.service';
 import { ConfigService } from '@nestjs/config';
+import { ExtractJwt } from 'passport-jwt';
+import fromAuthHeaderWithScheme = ExtractJwt.fromAuthHeaderWithScheme;
 
 @Injectable()
 export class AuthService {
@@ -80,6 +82,21 @@ export class AuthService {
 
   async login(payload: JwtPayload): Promise<string> {
     return this.jwtService.sign(payload);
+  }
+
+  async verify(userId: string, verificationCode: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.verificationCode !== verificationCode) {
+      throw new BadRequestException('Verification code invalid');
+    }
+
+    user.is_verified = true;
+    user.verificationCode = undefined;
+    await user.save();
   }
 
   private generateVerificationCode(): string {

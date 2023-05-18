@@ -2,7 +2,6 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Schema } from 'mongoose';
-import mongoose from 'mongoose';
 
 interface MongooseModelConfig {
   name: string;

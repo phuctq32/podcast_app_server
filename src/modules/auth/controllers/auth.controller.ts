@@ -9,8 +9,6 @@ import {
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from '../dto/create-user.dto';
-import UserLoginDto from '../dto/user-login.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 
 @Controller('/auth')
@@ -29,7 +27,6 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   async login(@Request() req) {
-    console.log(req.user);
     const jwtToken: string = await this.authService.login(req.user);
 
     return { access_token: jwtToken };

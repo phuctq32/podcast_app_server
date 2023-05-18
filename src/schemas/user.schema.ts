@@ -7,7 +7,6 @@ export type UserDocument = HydratedDocument<User>;
 export class User extends Document {
   @Prop({
     required: true,
-    unique: true,
   })
   email: string;
 
@@ -30,6 +29,9 @@ export class User extends Document {
 
   @Prop({ default: false })
   is_verified: boolean;
+
+  @Prop()
+  verificationCode: string;
 
   @Prop({ default: false })
   is_registered_with_google: boolean;

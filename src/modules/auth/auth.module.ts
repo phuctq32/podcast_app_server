@@ -8,12 +8,14 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JWTModule } from '../../common/jwt/jwt.module';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { SendEmailModule } from '../../common/mailer/send-email.module';
 
 @Module({
   imports: [
     DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PassportModule,
     JWTModule,
+    SendEmailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, LocalAuthGuard],

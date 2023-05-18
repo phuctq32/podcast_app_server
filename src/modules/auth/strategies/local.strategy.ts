@@ -21,7 +21,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (errors.length > 0) {
       throw new BadRequestException(errors);
     }
-    console.log(userDto);
     const user = await this.authService.validateUser(userDto);
 
     const payload: JwtPayload = {

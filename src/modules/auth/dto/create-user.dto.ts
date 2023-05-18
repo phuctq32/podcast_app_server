@@ -22,4 +22,6 @@ export class CreateUserDto extends BaseDto {
 
   @IsString()
   confirmPassword: string;
+
+  verificationCode: string;
 }

@@ -6,13 +6,14 @@ import databaseConfig from './configs/database.config';
 import { DatabaseModule } from './common/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import sendgridConfig from './configs/sendgrid.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      load: [databaseConfig],
+      load: [databaseConfig, sendgridConfig],
       expandVariables: true,
       cache: true,
     }),

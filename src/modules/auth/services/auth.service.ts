@@ -15,8 +15,9 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../../../common/jwt/jwt-payload.interface';
 import { SendEmailService } from '../../../common/mailer/send-email.service';
 import { ConfigService } from '@nestjs/config';
-import { ExtractJwt } from 'passport-jwt';
-import fromAuthHeaderWithScheme = ExtractJwt.fromAuthHeaderWithScheme;
+import { EmailConfig } from '../../../common/mailer/email-config.interface';
+import * as crypto from 'crypto';
+import { ForgotPasswordVerificationDto } from '../dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -68,7 +69,7 @@ export class AuthService {
     userDto.verificationCode = this.generateVerificationCode();
 
     await this.userModel.create(userDto);
-    await this.sendEmailService.sendEmailWithDynamicTemplate({
+    await this.sendEmail({
       to: userDto.email,
       templateId: this.configService.get<string>(
         'sendgrid.verifyEmailTemplateId',
@@ -90,13 +91,91 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.verificationCode !== verificationCode) {
+    if (user.verification_code !== verificationCode) {
       throw new BadRequestException('Verification code invalid');
     }
 
     user.is_verified = true;
-    user.verificationCode = undefined;
+    user.verification_code = undefined;
     await user.save();
+  }
+
+  async forgotPassword(email: string) {
+    const existingUser = await this.userModel.findOne({ email });
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    existingUser.reset_password_code = {
+      code: this.generateVerificationCode(),
+      expired_at: Date.now() + 600000,
+    };
+
+    await existingUser.save();
+
+    await this.sendEmail({
+      to: email,
+      templateId: this.configService.get<string>(
+        'sendgrid.forgotPasswordEmailTemplateId',
+      ),
+      dynamicTemplateData: {
+        subject: 'Reset Password',
+        code: existingUser.reset_password_code.code,
+      },
+    });
+  }
+
+  async verifyResetPasswordCode(
+    fgPwVerificationDto: ForgotPasswordVerificationDto,
+  ) {
+    const existingUser = await this.userModel.findOne({
+      email: fgPwVerificationDto.email,
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (existingUser.reset_password_code.expired_at < Date.now()) {
+      throw new BadRequestException('Code is expired');
+    }
+
+    if (existingUser.reset_password_code.code !== fgPwVerificationDto.code) {
+      throw new BadRequestException('Invalid reset password code');
+    }
+
+    const buf = crypto.randomBytes(32);
+    const resetToken = buf.toString('hex');
+
+    existingUser.reset_token = {
+      token: resetToken,
+      expired_at: Date.now() + 600000,
+    };
+    existingUser.reset_password_code = undefined;
+    await existingUser.save();
+
+    return resetToken;
+  }
+
+  async resetPassword(resetToken: string, newPassword: string) {
+    const existingUser = await this.userModel.findOne({
+      'reset_token.token': resetToken,
+    });
+    if (!existingUser) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    if (existingUser.reset_token.expired_at < Date.now()) {
+      throw new BadRequestException('Token is expired');
+    }
+
+    if (existingUser.reset_token.token !== resetToken) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    existingUser.password = bcrypt.hashSync(newPassword, 12);
+    existingUser.reset_token = undefined;
+    await existingUser.save();
   }
 
   private generateVerificationCode(): string {
@@ -107,5 +186,9 @@ export class AuthService {
     const verificationCode = randomNumber.toString().padStart(6, '0');
 
     return verificationCode;
+  }
+
+  private async sendEmail(config: EmailConfig) {
+    await this.sendEmailService.sendEmailWithDynamicTemplate(config);
   }
 }

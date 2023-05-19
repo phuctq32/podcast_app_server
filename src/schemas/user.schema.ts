@@ -31,10 +31,33 @@ export class User extends Document {
   is_verified: boolean;
 
   @Prop()
-  verificationCode: string;
+  verification_code: string;
 
   @Prop({ default: false })
   is_registered_with_google: boolean;
+
+  @Prop({
+    type: {
+      code: { type: String, required: true },
+      expired_at: { type: Date, required: true },
+    },
+  })
+  //@Prop()
+  reset_password_code: {
+    code: string;
+    expired_at: number;
+  };
+
+  @Prop({
+    type: {
+      token: { type: String, required: true },
+      expired_at: { type: Date, required: true },
+    },
+  })
+  reset_token: {
+    token: string;
+    expired_at: number;
+  };
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

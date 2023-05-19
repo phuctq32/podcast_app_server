@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Request,
   UseGuards,
@@ -11,6 +12,10 @@ import {
 import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
+import {
+  ForgotPasswordVerificationDto,
+  ResetPasswordDto,
+} from '../dto/reset-password.dto';
 
 @Controller('/auth')
 export class AuthController {
@@ -42,5 +47,36 @@ export class AuthController {
     await this.authService.verify(userId.trim(), verificationCode.trim());
 
     return { message: 'Verify successfully' };
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body('email') email: string) {
+    await this.authService.forgotPassword(email.trim());
+
+    return { message: 'Please check your email to reset your password!' };
+  }
+
+  @Post('forgot-password/verification')
+  @HttpCode(HttpStatus.OK)
+  async verifyResetPasswordCode(
+    @Body() fgPwVefificationDto: ForgotPasswordVerificationDto,
+  ) {
+    const resetToken = await this.authService.verifyResetPasswordCode(
+      fgPwVefificationDto,
+    );
+
+    return { reset_token: resetToken };
+  }
+
+  @Patch('reset-password/:token')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Param('token') resetToken: string,
+    @Body() resetPwDto: ResetPasswordDto,
+  ) {
+    await this.authService.resetPassword(resetToken, resetPwDto.password);
+
+    return { message: 'Reset password successfully' };
   }
 }

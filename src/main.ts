@@ -15,6 +15,15 @@ async function bootstrap() {
     .setTitle('Podcast API Documentation')
     .setDescription('The podcast app API document description')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        name: 'Json Web Token',
+        description: 'Enter JWT token',
+      },
+      'JWT',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

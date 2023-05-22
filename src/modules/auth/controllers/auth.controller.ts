@@ -16,7 +16,15 @@ import {
   ForgotPasswordVerificationDto,
   ResetPasswordDto,
 } from '../dto/reset-password.dto';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import UserLoginDto from '../dto/user-login.dto';
 
+@ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -29,6 +37,21 @@ export class AuthController {
     return { message: 'Register successfully' };
   }
 
+  @ApiBody({
+    type: UserLoginDto,
+    description: 'User credentials',
+  })
+  @ApiOkResponse({
+    description: 'Authentication token',
+    schema: {
+      properties: {
+        access_token: { type: 'string' },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'The username or password entered are not valid',
+  })
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -38,10 +61,17 @@ export class AuthController {
     return { access_token: jwtToken };
   }
 
-  @Post('verification/:userId')
+  @ApiBody({
+    schema: {
+      properties: {
+        verificationCode: { type: 'string', example: 'abcxyz' },
+      },
+    },
+  })
+  @Post('verification/:id')
   @HttpCode(HttpStatus.OK)
   async verify(
-    @Param('userId') userId: string,
+    @Param('id') userId: string,
     @Body('verificationCode') verificationCode: string,
   ) {
     await this.authService.verify(userId.trim(), verificationCode.trim());
@@ -49,6 +79,13 @@ export class AuthController {
     return { message: 'Verify successfully' };
   }
 
+  @ApiBody({
+    schema: {
+      properties: {
+        email: { type: 'string' },
+      },
+    },
+  })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body('email') email: string) {

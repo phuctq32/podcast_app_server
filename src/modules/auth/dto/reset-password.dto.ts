@@ -6,25 +6,28 @@ import {
   Length,
 } from 'class-validator';
 import { Match } from '../../../common/decorators/match.decorator';
-import BaseDto from '../../../common/base.dto';
-import { Expose } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class ResetPasswordDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @IsAlphanumeric()
   password: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @Match('password')
   confirmPassword: string;
 }
 
 export class ForgotPasswordVerificationDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @Length(6, 6)

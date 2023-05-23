@@ -7,20 +7,25 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JWTModule } from '../../common/jwt/jwt.module';
 import { SendEmailModule } from '../../common/mailer/send-email.module';
-import { AppResponseModule } from '../../common/reponse/response.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
+import { AppResponseService } from '../../common/reponse/response.service';
 
 @Module({
   imports: [
-    AppResponseModule,
     DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PassportModule,
     JWTModule,
     SendEmailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy, GoogleOauthGuard],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    GoogleStrategy,
+    GoogleOauthGuard,
+    AppResponseService,
+  ],
   exports: [],
 })
 export class AuthModule {}

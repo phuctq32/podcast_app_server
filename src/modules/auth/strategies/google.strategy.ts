@@ -6,7 +6,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private readonly configService: ConfigService) {
-    console.log(configService.get<string>('googleOAuth.clientId'));
     super({
       clientID: configService.get<string>('googleOAuth.clientId'),
       clientSecret: configService.get<string>('googleOAuth.clientSecret'),

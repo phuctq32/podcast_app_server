@@ -7,6 +7,7 @@ import { DatabaseModule } from './common/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import sendgridConfig from './configs/sendgrid.config';
 import googleOauthConfig from './configs/google-oauth.config';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import googleOauthConfig from './configs/google-oauth.config';
     }),
     DatabaseModule,
     AuthModule,
-    // UserModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

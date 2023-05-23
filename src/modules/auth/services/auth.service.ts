@@ -10,7 +10,7 @@ import { User } from '../../../schemas/user.schema';
 import { Model } from 'mongoose';
 import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
-import UserLoginDto from '../dto/user-login.dto';
+import { UserLoginDto } from '../dto/user-login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../../../common/jwt/jwt-payload.interface';
 import { SendEmailService } from '../../../common/mailer/send-email.service';
@@ -53,7 +53,12 @@ export class AuthService {
     //   });
     // }
 
-    return user;
+    return {
+      _id: user._id,
+      email: user.email,
+      avatar: user.avatar,
+      is_verified: user.is_verified,
+    };
   }
 
   async register(userDto: CreateUserDto): Promise<void> {
@@ -66,7 +71,7 @@ export class AuthService {
     }
 
     userDto.password = await bcrypt.hash(userDto.password, 12);
-    userDto.verificationCode = this.generateVerificationCode();
+    userDto.verification_code = this.generateVerificationCode();
 
     await this.userModel.create(userDto);
     await this.sendEmail({
@@ -76,22 +81,28 @@ export class AuthService {
       ),
       dynamicTemplateData: {
         subject: 'Verify Email',
-        code: userDto.verificationCode,
+        code: userDto.verification_code,
       },
     });
   }
 
-  async login(payload: JwtPayload): Promise<string> {
-    return this.jwtService.sign(payload);
+  async login(loginDto: UserLoginDto): Promise<object> {
+    const user = await this.validateUser(loginDto);
+    const payload: JwtPayload = {
+      userId: user._id.toString(),
+      email: user.email,
+    };
+    const token = this.jwtService.sign(payload);
+    return { user, token };
   }
 
-  async verify(userId: string, verificationCode: string) {
-    const user = await this.userModel.findById(userId);
+  async verify(dto: ForgotPasswordVerificationDto) {
+    const user = await this.userModel.findOne({ email: dto.email });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    if (user.verification_code !== verificationCode) {
+    if (user.verification_code !== dto.code) {
       throw new BadRequestException('Verification code invalid');
     }
 

@@ -6,23 +6,15 @@ import {
   Param,
   Patch,
   Post,
-  Request,
-  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { LocalAuthGuard } from '../guards/local-auth.guard';
 import {
   ForgotPasswordVerificationDto,
   ResetPasswordDto,
 } from '../dto/reset-password.dto';
-import {
-  ApiBody,
-  ApiOkResponse,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
-import UserLoginDto from '../dto/user-login.dto';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { UserLoginDto } from '../dto/user-login.dto';
 import { AppResponseService } from '../../../common/reponse/response.service';
 
 @ApiTags('Auth')
@@ -41,46 +33,21 @@ export class AuthController {
     return this.appResponseService.GetResponse('Register successfully', null);
   }
 
-  @ApiBody({
-    type: UserLoginDto,
-    description: 'User credentials',
-  })
-  @ApiOkResponse({
-    description: 'Authentication token',
-    schema: {
-      properties: {
-        access_token: { type: 'string' },
-      },
-    },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'The username or password entered are not valid',
-  })
   @Post('login')
-  @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async login(@Request() req) {
-    const jwtToken: string = await this.authService.login(req.user);
+  async login(@Body() loginDto: UserLoginDto) {
+    const data = await this.authService.login(loginDto);
 
-    return this.appResponseService.GetResponse('Login successfully', {
-      access_token: jwtToken,
-    });
+    return this.appResponseService.GetResponse('Login successfully', data);
   }
 
   @ApiBody({
-    schema: {
-      properties: {
-        verificationCode: { type: 'string', example: 'abcxyz' },
-      },
-    },
+    type: ForgotPasswordVerificationDto,
   })
-  @Post('verification/:id')
+  @Post('verification')
   @HttpCode(HttpStatus.OK)
-  async verify(
-    @Param('id') userId: string,
-    @Body('verificationCode') verificationCode: string,
-  ) {
-    await this.authService.verify(userId.trim(), verificationCode.trim());
+  async verify(@Body() dto: ForgotPasswordVerificationDto) {
+    await this.authService.verify(dto);
 
     return this.appResponseService.GetResponse('Verify successfully', null);
   }

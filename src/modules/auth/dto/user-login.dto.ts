@@ -8,7 +8,7 @@ import {
 import BaseDto from '../../../common/base.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-export default class UserLoginDto extends BaseDto {
+export class UserLoginDto extends BaseDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsEmail()

@@ -29,5 +29,5 @@ export class CreateUserDto extends BaseDto {
   @Match('password')
   confirmPassword: string;
 
-  verificationCode: string;
+  verification_code: string;
 }

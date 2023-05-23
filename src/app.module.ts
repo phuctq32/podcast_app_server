@@ -19,7 +19,6 @@ import { AppResponseModule } from './common/reponse/response.module';
       cache: true,
     }),
     DatabaseModule,
-    AppResponseModule,
     AuthModule,
     UserModule,
   ],

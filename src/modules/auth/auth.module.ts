@@ -3,22 +3,22 @@ import { DatabaseModule } from '../../common/database/database.module';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
-import { LocalStrategy } from './strategies/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JWTModule } from '../../common/jwt/jwt.module';
-import { LocalAuthGuard } from './guards/local-auth.guard';
 import { SendEmailModule } from '../../common/mailer/send-email.module';
+import { AppResponseModule } from '../../common/reponse/response.module';
 
 @Module({
   imports: [
+    AppResponseModule,
     DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PassportModule,
     JWTModule,
     SendEmailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, LocalAuthGuard],
+  providers: [AuthService, JwtStrategy],
   exports: [],
 })
 export class AuthModule {}

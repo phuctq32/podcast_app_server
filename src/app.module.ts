@@ -5,9 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import databaseConfig from './configs/database.config';
 import { DatabaseModule } from './common/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { UserModule } from './modules/user/user.module';
 import sendgridConfig from './configs/sendgrid.config';
-import { AppResponseModule } from './common/reponse/response.module';
 
 @Module({
   imports: [
@@ -20,7 +18,7 @@ import { AppResponseModule } from './common/reponse/response.module';
     }),
     DatabaseModule,
     AuthModule,
-    UserModule,
+    // UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,8 +4,9 @@ export interface HttpExceptionResponse {
   message?: any;
 }
 
-export interface CustomHttpExceptionResponse extends HttpExceptionResponse {
+export interface FullHttpException extends HttpExceptionResponse {
+  rootError: any;
   path: string;
   method: string;
-  timestamp: Date;
+  time: Date;
 }

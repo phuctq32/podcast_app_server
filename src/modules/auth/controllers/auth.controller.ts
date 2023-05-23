@@ -23,18 +23,22 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import UserLoginDto from '../dto/user-login.dto';
+import { AppResponseService } from '../../../common/reponse/response.service';
 
 @ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly appResponseService: AppResponseService,
+  ) {}
 
   @Post('/signup')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() user: CreateUserDto) {
     await this.authService.register(CreateUserDto.plainToInstance(user));
 
-    return { message: 'Register successfully' };
+    return this.appResponseService.GetResponse('Register successfully', null);
   }
 
   @ApiBody({
@@ -58,7 +62,9 @@ export class AuthController {
   async login(@Request() req) {
     const jwtToken: string = await this.authService.login(req.user);
 
-    return { access_token: jwtToken };
+    return this.appResponseService.GetResponse('Login successfully', {
+      access_token: jwtToken,
+    });
   }
 
   @ApiBody({
@@ -76,7 +82,7 @@ export class AuthController {
   ) {
     await this.authService.verify(userId.trim(), verificationCode.trim());
 
-    return { message: 'Verify successfully' };
+    return this.appResponseService.GetResponse('Verify successfully', null);
   }
 
   @ApiBody({
@@ -91,7 +97,10 @@ export class AuthController {
   async forgotPassword(@Body('email') email: string) {
     await this.authService.forgotPassword(email.trim());
 
-    return { message: 'Please check your email to reset your password!' };
+    return this.appResponseService.GetResponse(
+      'Please check your email to reset your password!',
+      null,
+    );
   }
 
   @Post('forgot-password/verification')
@@ -103,7 +112,7 @@ export class AuthController {
       fgPwVefificationDto,
     );
 
-    return { reset_token: resetToken };
+    return this.appResponseService.GetResponse('', { reset_token: resetToken });
   }
 
   @Patch('reset-password/:token')
@@ -114,6 +123,9 @@ export class AuthController {
   ) {
     await this.authService.resetPassword(resetToken, resetPwDto.password);
 
-    return { message: 'Reset password successfully' };
+    return this.appResponseService.GetResponse(
+      'Reset password successfully',
+      null,
+    );
   }
 }

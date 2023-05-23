@@ -30,6 +30,6 @@ export class ForgotPasswordVerificationDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @Length(6, 6)
+  @Length(5, 5)
   code: string;
 }

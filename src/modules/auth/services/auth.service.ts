@@ -180,10 +180,10 @@ export class AuthService {
 
   private generateVerificationCode(): string {
     const min = 0;
-    const max = 999999;
+    const max = 99999;
 
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-    const verificationCode = randomNumber.toString().padStart(6, '0');
+    const verificationCode = randomNumber.toString().padStart(5, '0');
 
     return verificationCode;
   }

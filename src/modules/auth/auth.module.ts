@@ -8,6 +8,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JWTModule } from '../../common/jwt/jwt.module';
 import { SendEmailModule } from '../../common/mailer/send-email.module';
 import { AppResponseModule } from '../../common/reponse/response.module';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { GoogleOauthGuard } from './guards/google-oauth.guard';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { AppResponseModule } from '../../common/reponse/response.module';
     SendEmailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, GoogleOauthGuard],
   exports: [],
 })
 export class AuthModule {}

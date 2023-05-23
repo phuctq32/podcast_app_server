@@ -11,7 +11,6 @@ import { HttpExceptionResponse } from './http-exception.interface';
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost): any {
     const ctx = host.switchToHttp();
-    //const request = ctx.getRequest();
     const response = ctx.getResponse();
 
     let statusCode: number;
@@ -20,7 +19,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
-      console.log(exception.getResponse());
       const errResponse = exception.getResponse();
       if (typeof errResponse === 'string') {
         message = errResponse;

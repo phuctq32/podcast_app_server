@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../../../schemas/user.schema';
@@ -31,7 +32,7 @@ export class AuthService {
   async validateUser(userDto: UserLoginDto) {
     const user = await this.userModel.findOne({ email: userDto.email });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Email not found');
     }
 
     const isValidPassword = await bcrypt.compare(
@@ -40,18 +41,8 @@ export class AuthService {
     );
 
     if (!isValidPassword) {
-      throw new BadRequestException({
-        status: HttpStatus.UNAUTHORIZED,
-        error: 'Password incorrect',
-      });
+      throw new UnauthorizedException('Email or Password invalid');
     }
-
-    // if (!user.is_verified) {
-    //   throw new BadRequestException({
-    //     status: HttpStatus.UNAUTHORIZED,
-    //     error: 'User not verified',
-    //   });
-    // }
 
     return {
       _id: user._id,
@@ -187,6 +178,27 @@ export class AuthService {
     existingUser.password = bcrypt.hashSync(newPassword, 12);
     existingUser.reset_token = undefined;
     await existingUser.save();
+  }
+
+  async loginWithGoogle(userDto: any) {
+    let user = await this.userModel.findOne({
+      email: userDto.email,
+      is_registered_with_google: true,
+    });
+    if (!user) {
+      user = await this.userModel.create({
+        ...userDto,
+        is_registered_with_google: true,
+      });
+    }
+
+    const payload: JwtPayload = {
+      userId: user._id,
+      email: user.email,
+    };
+    const token = this.jwtService.sign(payload);
+
+    return { user: { _id: user._id, ...userDto }, token };
   }
 
   private generateVerificationCode(): string {

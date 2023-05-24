@@ -19,12 +19,14 @@ import { ConfigService } from '@nestjs/config';
 import { EmailConfig } from '../../../common/mailer/email-config.interface';
 import * as crypto from 'crypto';
 import { ForgotPasswordVerificationDto } from '../dto/reset-password.dto';
+import { HashService } from '../../../common/hash/hash.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly jwtService: JwtService,
+    private readonly hashService: HashService,
     private readonly sendEmailService: SendEmailService,
     private readonly configService: ConfigService,
   ) {}
@@ -35,7 +37,7 @@ export class AuthService {
       throw new NotFoundException('Email not found');
     }
 
-    const isValidPassword = await bcrypt.compare(
+    const isValidPassword = this.hashService.compare(
       userDto.password,
       user.password,
     );
@@ -61,7 +63,7 @@ export class AuthService {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
 
-    userDto.password = await bcrypt.hash(userDto.password, 12);
+    userDto.password = this.hashService.hash(userDto.password);
     userDto.verification_code = this.generateVerificationCode();
 
     await this.userModel.create(userDto);

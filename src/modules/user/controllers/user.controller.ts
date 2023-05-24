@@ -45,7 +45,6 @@ export class UserController {
   ): Promise<AppResponse> {
     updateUserDto.id = req.user.userId;
     const user = await this.userService.updateUser(updateUserDto);
-    console.log(user);
 
     return this.appResponseService.GetResponse('Updated successfully', {
       user,

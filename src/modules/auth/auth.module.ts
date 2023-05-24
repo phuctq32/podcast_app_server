@@ -10,6 +10,7 @@ import { SendEmailModule } from '../../common/mailer/send-email.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { AppResponseService } from '../../common/reponse/response.service';
+import { HashService } from '../../common/hash/hash.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AppResponseService } from '../../common/reponse/response.service';
   controllers: [AuthController],
   providers: [
     AuthService,
+    HashService,
     JwtStrategy,
     GoogleStrategy,
     GoogleOauthGuard,

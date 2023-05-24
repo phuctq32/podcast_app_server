@@ -30,19 +30,6 @@ export class UpdateUserDto extends BaseDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsNotEmpty()
-  @MinLength(6)
-  @IsAlphanumeric()
-  password: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNotEmpty()
-  @Match('password')
-  confirmPassword: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsDate()
   birthday: Date;
 }

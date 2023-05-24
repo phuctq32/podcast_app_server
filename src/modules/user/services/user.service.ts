@@ -4,11 +4,13 @@ import { User } from '../../../schemas/user.schema';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
+import { HashService } from '../../../common/hash/hash.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    private readonly hashService: HashService,
   ) {}
 
   async getUserById(id: string) {
@@ -25,27 +27,25 @@ export class UserService {
   async updateUser(updateUserDto: UpdateUserDto) {
     const user = await this.userModel
       .findById(updateUserDto.id)
-      .select('_id name email password avatar birthday');
+      .select('_id name email avatar birthday');
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    user.name = updateUserDto.name;
-    user.avatar = updateUserDto.avatar;
-    user.birthday = updateUserDto.birthday;
+    if (updateUserDto.name) {
+      user.name = updateUserDto.name;
+    }
 
-    if (updateUserDto.password) {
-      user.password = bcrypt.hashSync(updateUserDto.password, 12);
+    if (updateUserDto.avatar) {
+      user.avatar = updateUserDto.avatar;
+    }
+
+    if (updateUserDto.birthday) {
+      user.birthday = updateUserDto.birthday;
     }
 
     await user.save();
 
-    return {
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      avatar: user.avatar,
-      birthday: user.birthday,
-    };
+    return user;
   }
 }

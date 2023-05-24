@@ -4,12 +4,13 @@ import { UserService } from './services/user.service';
 import { DatabaseModule } from '../../common/database/database.module';
 import { User, UserSchema } from '../../schemas/user.schema';
 import { AppResponseService } from '../../common/reponse/response.service';
+import { HashService } from '../../common/hash/hash.service';
 
 @Module({
   imports: [
     DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [UserController],
-  providers: [UserService, AppResponseService],
+  providers: [UserService, AppResponseService, HashService],
 })
 export class UserModule {}

@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { JwtAuthGuard } from '../../../guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../common/jwt/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AppResponseService } from '../../../common/reponse/response.service';
 import { AppResponse } from '../../../common/reponse/response.inteface';

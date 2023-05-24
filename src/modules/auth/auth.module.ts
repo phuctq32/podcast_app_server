@@ -4,7 +4,7 @@ import { User, UserSchema } from '../../schemas/user.schema';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtStrategy } from '../../common/jwt/jwt.strategy';
 import { JWTModule } from '../../common/jwt/jwt.module';
 import { SendEmailModule } from '../../common/mailer/send-email.module';
 import { GoogleStrategy } from './strategies/google.strategy';

@@ -4,14 +4,14 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
-import {
-  FullHttpException,
-  HttpExceptionResponse,
-} from './http-exception.interface';
+import { FullHttpException } from './http-exception.interface';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger: Logger = new Logger(HttpExceptionFilter.name);
+
   catch(exception: HttpException, host: ArgumentsHost): any {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
@@ -20,11 +20,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let statusCode: number;
     let error: string;
     let message: string;
-    const fullExceptionResponse: FullHttpException = {
-      method: request.method,
-      path: request.url,
-      time: new Date(),
-    } as FullHttpException;
+    // const fullExceptionResponse: FullHttpException = {
+    //   method: request.method,
+    //   path: request.url,
+    //   time: new Date(),
+    // };
+    const fullExceptionResponse = new FullHttpException();
+    fullExceptionResponse.method = request.method;
+    fullExceptionResponse.path = request.url;
+    fullExceptionResponse.time = new Date();
 
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
@@ -32,9 +36,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       if (typeof errResponse === 'string') {
         message = errResponse;
       } else {
-        message = (errResponse as HttpExceptionResponse).message;
+        message = (errResponse as FullHttpException).message;
 
-        error = (errResponse as HttpExceptionResponse).error;
+        error = (errResponse as FullHttpException).error;
         if (!message) {
           message = error;
           error = undefined;
@@ -50,20 +54,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
     fullExceptionResponse.error = error;
     fullExceptionResponse.message = message;
 
-    console.log(fullExceptionResponse);
+    this.logger.debug(
+      `[EXCEPTION INFO] ${JSON.stringify(fullExceptionResponse)}`,
+    );
 
-    response
-      .status(statusCode)
-      .json(this.getHttpExceptionResponse(fullExceptionResponse));
+    response.status(statusCode).json(fullExceptionResponse.getResponse());
   }
 
-  private getHttpExceptionResponse(
-    e: FullHttpException,
-  ): HttpExceptionResponse {
-    return {
-      statusCode: e.statusCode,
-      error: e.error,
-      message: e.message,
-    } as HttpExceptionResponse;
-  }
+  // private getHttpExceptionResponse(
+  //   e: FullHttpException,
+  // ): HttpExceptionResponse {
+  //   return {
+  //     statusCode: e.statusCode,
+  //     error: e.error,
+  //     message: e.message,
+  //   } as HttpExceptionResponse;
+  // }
 }

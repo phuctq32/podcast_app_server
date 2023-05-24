@@ -26,6 +26,6 @@ import { AppResponseService } from '../../common/reponse/response.service';
     GoogleOauthGuard,
     AppResponseService,
   ],
-  exports: [],
+  exports: [PassportModule, JwtStrategy, JWTModule],
 })
 export class AuthModule {}

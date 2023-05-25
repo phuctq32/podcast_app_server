@@ -23,18 +23,12 @@ export class LoggingInterceptor implements NestInterceptor {
         context.getHandler().name
       }`,
     );
-    if (request.user) {
+    if (request.user.userId) {
       this.logger.debug(`userId: ${request.user.userId}`);
     }
-    if (request.body) {
-      this.logger.debug(`Request body: ${JSON.stringify(request.body)}`);
-    }
-    if (request.params) {
-      this.logger.debug(`Request params: ${JSON.stringify(request.params)}`);
-    }
-    if (request.query) {
-      this.logger.debug(`Request query: ${JSON.stringify(request.query)}`);
-    }
+    this.logger.debug(`Request body: ${JSON.stringify(request.body)}`);
+    this.logger.debug(`Request params: ${JSON.stringify(request.params)}`);
+    this.logger.debug(`Request query: ${JSON.stringify(request.query)}`);
 
     const reqTime = Date.now();
 

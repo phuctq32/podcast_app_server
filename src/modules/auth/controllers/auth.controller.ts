@@ -9,6 +9,7 @@ import {
   Get,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -20,6 +21,7 @@ import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { UserLoginDto } from '../dto/user-login.dto';
 import { AppResponseService } from '../../../common/reponse/response.service';
 import { GoogleOauthGuard } from '../guards/google-oauth.guard';
+import { AppResponse } from '../../../common/reponse/response.inteface';
 
 @ApiTags('Auth')
 @Controller('/auth')
@@ -111,6 +113,19 @@ export class AuthController {
   async loginWithGoogleRedirect(@Req() req) {
     const data = await this.authService.loginWithGoogle(req.user);
 
+    return this.appResponseService.GetResponse(
+      'Login with google successfully',
+      data,
+    );
+  }
+
+  // Login by access token from google oauth
+  @Post('login/google')
+  @HttpCode(HttpStatus.OK)
+  async loginWithGoogleAccessToken(
+    @Query('access_token') accessToken: string,
+  ): Promise<AppResponse> {
+    const data = await this.authService.loginWithGoogleAccessToken(accessToken);
     return this.appResponseService.GetResponse(
       'Login with google successfully',
       data,

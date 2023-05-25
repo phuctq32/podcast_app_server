@@ -203,6 +203,24 @@ export class AuthService {
     return { user: { _id: user._id, ...userDto }, token };
   }
 
+  async loginWithGoogleAccessToken(accessToken: string) {
+    const userDto = await this.getUserInfoFromAccessToken(accessToken);
+    return await this.loginWithGoogle(userDto);
+  }
+
+  private async getUserInfoFromAccessToken(accessToken: string) {
+    const response = await fetch(
+      `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`,
+    );
+    const userInfo = await response.json();
+    return {
+      email: userInfo.email,
+      name: userInfo.name,
+      avatar: userInfo.picture,
+      is_verified: true,
+    };
+  }
+
   private generateVerificationCode(): string {
     const min = 0;
     const max = 99999;

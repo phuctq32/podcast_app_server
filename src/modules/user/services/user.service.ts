@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../../../schemas/user.schema';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { HashService } from '../../../common/hash/hash.service';
+import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 
 @Injectable()
 export class UserService {
@@ -44,5 +49,30 @@ export class UserService {
     await user.save();
 
     return user;
+  }
+
+  async changeUserPassword(dto: ChangePasswordUserDto) {
+    const user = await this.userModel.findById(dto.id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check valid current password
+    if (!this.hashService.compare(dto.currentPassword, user.password)) {
+      throw new BadRequestException('Current password wrong');
+    }
+
+    // Check condition: new password must be different than the current one
+    if (dto.newPassword === dto.currentPassword) {
+      throw new BadRequestException(
+        'New password must be different than to current',
+      );
+    }
+
+    user.password = this.hashService.hash(dto.newPassword);
+
+    await user.save();
+
+    return { user };
   }
 }

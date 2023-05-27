@@ -1,4 +1,4 @@
-import { Expose, Transform } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { ObjectId } from 'mongoose';
 
 export class BaseEntity {

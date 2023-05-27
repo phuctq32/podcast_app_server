@@ -30,8 +30,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     fullExceptionResponse.path = request.url;
     fullExceptionResponse.time = new Date();
 
-    console.log(exception);
-
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
       const errResponse = exception.getResponse();
@@ -59,17 +57,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     this.logger.debug(
       `[EXCEPTION INFO] ${JSON.stringify(fullExceptionResponse)}`,
     );
+    console.log(exception);
 
     response.status(statusCode).json(fullExceptionResponse.getResponse());
   }
-
-  // private getHttpExceptionResponse(
-  //   e: FullHttpException,
-  // ): HttpExceptionResponse {
-  //   return {
-  //     statusCode: e.statusCode,
-  //     error: e.error,
-  //     message: e.message,
-  //   } as HttpExceptionResponse;
-  // }
 }

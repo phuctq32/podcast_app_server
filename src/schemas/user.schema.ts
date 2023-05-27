@@ -18,6 +18,7 @@ export class User extends BaseEntity {
   name: string;
 
   @Prop()
+  @Exclude()
   password?: string;
 
   @Prop({

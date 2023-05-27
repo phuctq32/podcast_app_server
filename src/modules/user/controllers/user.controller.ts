@@ -19,6 +19,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 import { User } from '../../../schemas/user.schema';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
+import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -57,5 +58,15 @@ export class UserController {
     const user = await this.userService.getUserById(id);
 
     return { user };
+  }
+
+  @ApiBearerAuth('JWT')
+  @Patch('profile/change-password')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Change password successfully')
+  async changePassword(@Req() req, @Body() dto: ChangePasswordUserDto) {
+    dto.id = req.user.userId;
+    return await this.userService.changeUserPassword(dto);
   }
 }

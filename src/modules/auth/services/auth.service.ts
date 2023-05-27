@@ -33,6 +33,7 @@ export class AuthService {
 
   async validateUser(userDto: UserLoginDto) {
     const user = await this.userModel.findOne({ email: userDto.email });
+
     if (!user) {
       throw new NotFoundException('Email not found');
     }
@@ -46,16 +47,10 @@ export class AuthService {
       throw new UnauthorizedException('Email or Password invalid');
     }
 
-    return {
-      _id: user._id.toString(),
-      email: user.email,
-      avatar: user.avatar,
-      is_verified: user.is_verified,
-    };
+    return user;
   }
 
   async register(userDto: CreateUserDto): Promise<void> {
-    console.log(userDto);
     const existingUser: User = await this.userModel.findOne({
       email: userDto.email,
     });

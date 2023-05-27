@@ -9,6 +9,7 @@ import {
   Req,
   Request,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { JwtAuthGuard } from '../../../common/jwt/jwt-auth.guard';
@@ -16,9 +17,12 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AppResponseService } from '../../../common/reponse/response.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
+import { User } from '../../../schemas/user.schema';
+import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
 
 @ApiTags('User')
 @Controller('users')
+@UseInterceptors(MongooseClassSerializeInterceptor(User))
 export class UserController {
   constructor(
     private readonly appResponseService: AppResponseService,

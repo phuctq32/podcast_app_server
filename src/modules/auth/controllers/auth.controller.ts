@@ -10,6 +10,7 @@ import {
   UseGuards,
   Req,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -22,6 +23,8 @@ import { UserLoginDto } from '../dto/user-login.dto';
 import { AppResponseService } from '../../../common/reponse/response.service';
 import { GoogleOauthGuard } from '../guards/google-oauth.guard';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
+import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
+import { User } from '../../../schemas/user.schema';
 
 @ApiTags('Auth')
 @Controller('/auth')
@@ -33,15 +36,17 @@ export class AuthController {
 
   @Post('/signup')
   @HttpCode(HttpStatus.CREATED)
+  @ResponseMessage('Register successfully')
   async register(@Body() user: CreateUserDto) {
     await this.authService.register(CreateUserDto.plainToInstance(user));
 
-    return this.appResponseService.GetResponse('Register successfully', null);
+    return null;
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Login successfully')
+  @UseInterceptors(MongooseClassSerializeInterceptor(User))
   async login(@Body() loginDto: UserLoginDto) {
     return await this.authService.login(loginDto);
   }
@@ -107,6 +112,7 @@ export class AuthController {
   @UseGuards(GoogleOauthGuard)
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Login with google successfully')
+  @UseInterceptors(MongooseClassSerializeInterceptor(User))
   async loginWithGoogleRedirect(@Req() req) {
     return await this.authService.loginWithGoogle(req.user);
   }
@@ -115,6 +121,7 @@ export class AuthController {
   @Post('login/google')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Login with google successfully')
+  @UseInterceptors(MongooseClassSerializeInterceptor(User))
   async loginWithGoogleAccessToken(@Query('access_token') accessToken: string) {
     return await this.authService.loginWithGoogleAccessToken(accessToken);
   }

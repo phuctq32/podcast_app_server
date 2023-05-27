@@ -1,10 +1,12 @@
 import { Document } from 'mongoose';
 import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
+import { Exclude, Expose } from 'class-transformer';
+import { BaseEntity } from './base.entity';
 
 export type UserDocument = User & Document;
 
 @Schema()
-export class User {
+export class User extends BaseEntity {
   @Prop({
     required: true,
   })
@@ -31,9 +33,11 @@ export class User {
   is_verified: boolean;
 
   @Prop()
+  @Exclude()
   verification_code: string;
 
   @Prop({ default: false })
+  @Exclude()
   is_registered_with_google: boolean;
 
   @Prop({
@@ -42,7 +46,7 @@ export class User {
       expired_at: { type: Date, required: true },
     },
   })
-  //@Prop()
+  @Exclude()
   reset_password_code: {
     code: string;
     expired_at: number;
@@ -54,6 +58,7 @@ export class User {
       expired_at: { type: Date, required: true },
     },
   })
+  @Exclude()
   reset_token: {
     token: string;
     expired_at: number;

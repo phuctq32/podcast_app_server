@@ -57,6 +57,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     this.logger.debug(
       `[EXCEPTION INFO] ${JSON.stringify(fullExceptionResponse)}`,
     );
+    this.logger.error('Error: ');
     console.log(exception);
 
     response.status(statusCode).json(fullExceptionResponse.getResponse());

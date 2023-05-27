@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -12,12 +13,14 @@ import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 
 @Injectable()
 export class UserService {
+  private readonly logger: Logger = new Logger(UserService.name);
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly hashService: HashService,
   ) {}
 
   async getUserById(id: string) {
+    this.logger.log(`In func ${this.getUserById.name}`);
     const user = await this.userModel
       .findById(id)
       .select('_id email name avatar');
@@ -29,6 +32,7 @@ export class UserService {
   }
 
   async updateUser(updateUserDto: UpdateUserDto) {
+    this.logger.log(`In func ${this.updateUser.name}`);
     const user = await this.userModel.findById(updateUserDto.id);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -52,6 +56,7 @@ export class UserService {
   }
 
   async changeUserPassword(dto: ChangePasswordUserDto) {
+    this.logger.log(`In func ${this.changeUserPassword.name}`);
     const user = await this.userModel.findById(dto.id);
     if (!user) {
       throw new NotFoundException('User not found');

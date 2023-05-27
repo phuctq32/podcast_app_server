@@ -17,10 +17,4 @@ export class FullHttpException extends HttpExceptionResponse {
       message: this.message,
     };
   }
-
-  // setStatusCode(statusCode: number): void {
-  //   super.statusCode = statusCode;
-  // }
-  //
-  // setError()
 }

@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -23,6 +24,7 @@ import { HashService } from '../../../common/hash/hash.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger: Logger = new Logger(AuthService.name);
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly jwtService: JwtService,
@@ -51,6 +53,7 @@ export class AuthService {
   }
 
   async register(userDto: CreateUserDto): Promise<void> {
+    this.logger.log(`In func ${this.register.name}`);
     const existingUser: User = await this.userModel.findOne({
       email: userDto.email,
     });
@@ -75,6 +78,7 @@ export class AuthService {
   }
 
   async login(loginDto: UserLoginDto): Promise<object> {
+    this.logger.log(`In func ${this.login.name}`);
     const user = await this.validateUser(loginDto);
     const payload: JwtPayload = {
       userId: user._id.toString(),
@@ -85,6 +89,8 @@ export class AuthService {
   }
 
   async verify(dto: ForgotPasswordVerificationDto) {
+    this.logger.log(`In func ${this.verify.name}`);
+
     const user = await this.userModel.findOne({ email: dto.email });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -100,6 +106,8 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
+    this.logger.log(`In func ${this.forgotPassword.name}`);
+
     const existingUser = await this.userModel.findOne({ email });
     if (!existingUser) {
       throw new NotFoundException('User not found');
@@ -127,6 +135,7 @@ export class AuthService {
   async verifyResetPasswordCode(
     fgPwVerificationDto: ForgotPasswordVerificationDto,
   ) {
+    this.logger.log(`In func ${this.verifyResetPasswordCode.name}`);
     const existingUser = await this.userModel.findOne({
       email: fgPwVerificationDto.email,
     });
@@ -157,6 +166,7 @@ export class AuthService {
   }
 
   async resetPassword(resetToken: string, newPassword: string) {
+    this.logger.log(`In func ${this.resetPassword.name}`);
     const existingUser = await this.userModel.findOne({
       'reset_token.token': resetToken,
     });
@@ -178,6 +188,7 @@ export class AuthService {
   }
 
   async loginWithGoogle(userDto: any) {
+    this.logger.log(`In func ${this.loginWithGoogle.name}`);
     let user = await this.userModel.findOne({
       email: userDto.email,
       is_registered_with_google: true,
@@ -199,6 +210,7 @@ export class AuthService {
   }
 
   async loginWithGoogleAccessToken(accessToken: string) {
+    this.logger.log(`In func ${this.loginWithGoogleAccessToken.name}`);
     const userDto = await this.getUserInfoFromAccessToken(accessToken);
     return await this.loginWithGoogle(userDto);
   }

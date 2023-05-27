@@ -47,7 +47,7 @@ export class AuthService {
     }
 
     return {
-      _id: user._id,
+      _id: user._id.toString(),
       email: user.email,
       avatar: user.avatar,
       is_verified: user.is_verified,
@@ -195,7 +195,7 @@ export class AuthService {
     }
 
     const payload: JwtPayload = {
-      userId: user._id,
+      userId: user._id.toString(),
       email: user.email,
     };
     const token = this.jwtService.sign(payload);

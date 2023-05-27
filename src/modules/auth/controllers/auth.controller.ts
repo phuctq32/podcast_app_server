@@ -21,7 +21,7 @@ import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { UserLoginDto } from '../dto/user-login.dto';
 import { AppResponseService } from '../../../common/reponse/response.service';
 import { GoogleOauthGuard } from '../guards/google-oauth.guard';
-import { AppResponse } from '../../../common/reponse/response.inteface';
+import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 
 @ApiTags('Auth')
 @Controller('/auth')
@@ -41,10 +41,9 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Login successfully')
   async login(@Body() loginDto: UserLoginDto) {
-    const data = await this.authService.login(loginDto);
-
-    return this.appResponseService.GetResponse('Login successfully', data);
+    return await this.authService.login(loginDto);
   }
 
   @ApiBody({
@@ -52,10 +51,11 @@ export class AuthController {
   })
   @Post('verification')
   @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Verify successfully')
   async verify(@Body() dto: ForgotPasswordVerificationDto) {
     await this.authService.verify(dto);
 
-    return this.appResponseService.GetResponse('Verify successfully', null);
+    return null;
   }
 
   @ApiBody({
@@ -67,13 +67,11 @@ export class AuthController {
   })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Please check your email to reset your password!')
   async forgotPassword(@Body('email') email: string) {
     await this.authService.forgotPassword(email.trim());
 
-    return this.appResponseService.GetResponse(
-      'Please check your email to reset your password!',
-      null,
-    );
+    return null;
   }
 
   @Post('forgot-password/verification')
@@ -85,21 +83,19 @@ export class AuthController {
       fgPwVefificationDto,
     );
 
-    return this.appResponseService.GetResponse('', { reset_token: resetToken });
+    return { reset_token: resetToken };
   }
 
   @Patch('reset-password/:token')
   @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Reset password successfully')
   async resetPassword(
     @Param('token') resetToken: string,
     @Body() resetPwDto: ResetPasswordDto,
   ) {
     await this.authService.resetPassword(resetToken, resetPwDto.password);
 
-    return this.appResponseService.GetResponse(
-      'Reset password successfully',
-      null,
-    );
+    return null;
   }
 
   // Google OAuth
@@ -110,25 +106,16 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(GoogleOauthGuard)
   @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Login with google successfully')
   async loginWithGoogleRedirect(@Req() req) {
-    const data = await this.authService.loginWithGoogle(req.user);
-
-    return this.appResponseService.GetResponse(
-      'Login with google successfully',
-      data,
-    );
+    return await this.authService.loginWithGoogle(req.user);
   }
 
   // Login by access token from google oauth
   @Post('login/google')
   @HttpCode(HttpStatus.OK)
-  async loginWithGoogleAccessToken(
-    @Query('access_token') accessToken: string,
-  ): Promise<AppResponse> {
-    const data = await this.authService.loginWithGoogleAccessToken(accessToken);
-    return this.appResponseService.GetResponse(
-      'Login with google successfully',
-      data,
-    );
+  @ResponseMessage('Login with google successfully')
+  async loginWithGoogleAccessToken(@Query('access_token') accessToken: string) {
+    return await this.authService.loginWithGoogleAccessToken(accessToken);
   }
 }

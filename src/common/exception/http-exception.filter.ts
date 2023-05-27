@@ -30,6 +30,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     fullExceptionResponse.path = request.url;
     fullExceptionResponse.time = new Date();
 
+    console.log(exception);
+
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
       const errResponse = exception.getResponse();

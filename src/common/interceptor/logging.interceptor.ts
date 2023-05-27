@@ -23,7 +23,7 @@ export class LoggingInterceptor implements NestInterceptor {
         context.getHandler().name
       }`,
     );
-    if (request.user.userId) {
+    if (request.user?.userId) {
       this.logger.debug(`userId: ${request.user.userId}`);
     }
     this.logger.debug(`Request body: ${JSON.stringify(request.body)}`);

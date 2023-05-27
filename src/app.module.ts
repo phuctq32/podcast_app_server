@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -8,6 +8,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import sendgridConfig from './configs/sendgrid.config';
 import googleOauthConfig from './configs/google-oauth.config';
 import { UserModule } from './modules/user/user.module';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { HttpExceptionFilter } from './common/exception/http-exception.filter';
+import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
+import { ResponseFormatInterceptor } from './common/interceptor/response-format.interceptor';
 
 @Module({
   imports: [
@@ -23,6 +27,24 @@ import { UserModule } from './modules/user/user.module';
     UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseFormatInterceptor,
+    },
+  ],
 })
 export class AppModule {}

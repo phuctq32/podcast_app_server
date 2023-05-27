@@ -1,16 +1,5 @@
-import {
-  IsAlphanumeric,
-  IsDate,
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUrl,
-  Length,
-  MinLength,
-} from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsUrl, Length } from 'class-validator';
 import BaseDto from '../../../common/base.dto';
-import { Match } from '../../../common/decorators/match.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateUserDto extends BaseDto {

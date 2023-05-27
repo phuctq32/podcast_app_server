@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -12,6 +12,7 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/exception/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
 import { ResponseFormatInterceptor } from './common/interceptor/response-format.interceptor';
+import { CustomValidationPipe } from './common/validation/custom-validation.pipe';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { ResponseFormatInterceptor } from './common/interceptor/response-format.
     },
     {
       provide: APP_PIPE,
-      useClass: ValidationPipe,
+      useClass: CustomValidationPipe,
     },
     {
       provide: APP_INTERCEPTOR,

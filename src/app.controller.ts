@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
@@ -9,7 +9,7 @@ export class AppController {
 
   @ApiOkResponse({ description: 'Got the document page!' })
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getDocumentPage(@Res() res) {
+    res.redirect(this.appService.getDocumentLink());
   }
 }

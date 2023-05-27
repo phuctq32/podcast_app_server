@@ -34,7 +34,7 @@ export class AuthController {
     private readonly appResponseService: AppResponseService,
   ) {}
 
-  @Post('/signup')
+  @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   @ResponseMessage('Register successfully')
   async register(@Body() user: CreateUserDto) {

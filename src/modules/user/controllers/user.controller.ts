@@ -17,7 +17,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AppResponseService } from '../../../common/reponse/response.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
-import { User } from '../../../schemas/user.schema';
+import { User } from '../../../entities/user.entity';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
 import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 

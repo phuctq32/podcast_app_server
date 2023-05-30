@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../../../schemas/user.schema';
+import { User } from '../../../entities/user.entity';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { HashService } from '../../../common/hash/hash.service';

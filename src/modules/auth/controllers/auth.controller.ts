@@ -24,7 +24,7 @@ import { AppResponseService } from '../../../common/reponse/response.service';
 import { GoogleOauthGuard } from '../guards/google-oauth.guard';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
-import { User } from '../../../schemas/user.schema';
+import { User } from '../../../entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('/auth')

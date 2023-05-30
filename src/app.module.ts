@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './configs/database.config';
-import { DatabaseModule } from './common/database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import sendgridConfig from './configs/sendgrid.config';
 import googleOauthConfig from './configs/google-oauth.config';
@@ -13,6 +12,9 @@ import { HttpExceptionFilter } from './common/exception/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
 import { ResponseFormatInterceptor } from './common/interceptor/response-format.interceptor';
 import { CustomValidationPipe } from './common/validation/custom-validation.pipe';
+import { PodcastModule } from './modules/podcast/podcast.module';
+import { EpisodeModule } from './modules/episode/episode.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -23,9 +25,20 @@ import { CustomValidationPipe } from './common/validation/custom-validation.pipe
       expandVariables: true,
       cache: true,
     }),
-    DatabaseModule,
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('database.uri'),
+        dbName: configService.get<string>('database.name'),
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }),
+      inject: [ConfigService],
+    }),
     AuthModule,
     UserModule,
+    PodcastModule,
+    EpisodeModule,
   ],
   controllers: [AppController],
   providers: [

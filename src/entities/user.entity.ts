@@ -1,7 +1,8 @@
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from './base.entity';
+import { Episode } from './episode.entity';
 
 export type UserDocument = User & Document;
 
@@ -64,6 +65,16 @@ export class User extends BaseEntity {
     token: string;
     expired_at: number;
   };
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Episode.name }],
+  })
+  @Exclude()
+  watched_episodes: Episode[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+export const UserSchemaFactory = async () => {
+  return UserSchema;
+};

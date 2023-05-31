@@ -4,7 +4,7 @@ import mongoose, { Document } from 'mongoose';
 import { User } from './user.entity';
 import { Transform, Type } from 'class-transformer';
 import { Category } from './category.entity';
-import { Episode } from './episode.entity';
+import { Episode, EpisodeDocument } from './episode.entity';
 
 export type PodcastDocument = Podcast & Document;
 
@@ -23,8 +23,15 @@ export class Podcast extends BaseEntity {
   @Prop()
   description: string;
 
-  @Prop()
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Category.name,
+  })
+  @Type(() => Category)
   category: Category;
+
+  @Prop()
+  image: string;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -35,10 +42,10 @@ export class Podcast extends BaseEntity {
   author: User;
 
   @Type(() => Episode)
-  @Transform(({ value }) =>
-    value.items ? value : { items: value, count: value.length },
-  )
-  episodes?: Episode[];
+  @Transform(({ value }) => ({ items: value, count: value.length }), {
+    toPlainOnly: true,
+  })
+  episodes?: EpisodeDocument[];
 }
 
 export const PodcastSchema = SchemaFactory.createForClass(Podcast);
@@ -46,7 +53,7 @@ export const PodcastSchema = SchemaFactory.createForClass(Podcast);
 export const PodcastSchemaFactory = async () => {
   const podcastSchema = PodcastSchema;
   podcastSchema.virtual('episodes', {
-    ref: 'Episode',
+    ref: Episode.name,
     localField: '_id',
     foreignField: 'podcast',
   });

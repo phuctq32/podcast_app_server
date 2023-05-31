@@ -39,7 +39,7 @@ export class PodcastController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async getPodcastById(@Param('id') id: string) {
-    return await this.podcastService.getPodcastById(id);
+  async getPodcastById(@Req() req, @Param('id') podcastId: string) {
+    return await this.podcastService.getPodcastById(podcastId, req.user.userId);
   }
 }

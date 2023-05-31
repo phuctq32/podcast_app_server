@@ -15,6 +15,7 @@ import { CustomValidationPipe } from './common/validation/custom-validation.pipe
 import { PodcastModule } from './modules/podcast/podcast.module';
 import { EpisodeModule } from './modules/episode/episode.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     UserModule,
     PodcastModule,
     EpisodeModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [

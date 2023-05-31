@@ -4,6 +4,8 @@ import {
   Category,
   CategorySchemaFactory,
 } from '../../entities/category.entity';
+import { CategoryController } from './controller/category.controller';
+import { CategoryService } from './service/category.service';
 
 @Module({
   imports: [
@@ -11,5 +13,7 @@ import {
       { name: Category.name, useFactory: CategorySchemaFactory },
     ]),
   ],
+  controllers: [CategoryController],
+  providers: [CategoryService],
 })
 export class CategoryModule {}

@@ -14,5 +14,6 @@ import { MongooseModule } from '@nestjs/mongoose';
   ],
   controllers: [UserController],
   providers: [UserService, AppResponseService, HashService],
+  exports: [MongooseModule],
 })
 export class UserModule {}

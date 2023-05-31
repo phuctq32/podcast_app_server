@@ -5,6 +5,7 @@ import { PodcastController } from './controller/podcast.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from '../user/user.module';
 import { EpisodeModule } from '../episode/episode.module';
+import { CategoryModule } from '../category/category.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EpisodeModule } from '../episode/episode.module';
     ]),
     UserModule,
     EpisodeModule,
+    CategoryModule,
   ],
   controllers: [PodcastController],
   providers: [PodcastService],

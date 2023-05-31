@@ -15,5 +15,6 @@ import { CategoryService } from './service/category.service';
   ],
   controllers: [CategoryController],
   providers: [CategoryService],
+  exports: [MongooseModule],
 })
 export class CategoryModule {}

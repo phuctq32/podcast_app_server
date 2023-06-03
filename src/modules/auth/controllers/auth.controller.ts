@@ -20,7 +20,6 @@ import {
 } from '../dto/reset-password.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { UserLoginDto } from '../dto/user-login.dto';
-import { AppResponseService } from '../../../common/reponse/response.service';
 import { GoogleOauthGuard } from '../guards/google-oauth.guard';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
@@ -29,10 +28,7 @@ import { User } from '../../../entities/user.entity';
 @ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly appResponseService: AppResponseService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)

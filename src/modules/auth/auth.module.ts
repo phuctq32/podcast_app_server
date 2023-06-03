@@ -3,13 +3,12 @@ import { User, UserSchemaFactory } from '../../entities/user.entity';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from '../../common/jwt/jwt.strategy';
-import { JWTModule } from '../../common/jwt/jwt.module';
-import { SendEmailModule } from '../../common/mailer/send-email.module';
+import { JwtStrategy } from '../../utils/jwt/jwt.strategy';
+import { JWTModule } from '../../utils/jwt/jwt.module';
+import { SendEmailModule } from '../../utils/mailer/send-email.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
-import { AppResponseService } from '../../common/reponse/response.service';
-import { HashService } from '../../common/hash/hash.service';
+import { HashService } from '../../utils/hash/hash.service';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
@@ -28,7 +27,6 @@ import { MongooseModule } from '@nestjs/mongoose';
     JwtStrategy,
     GoogleStrategy,
     GoogleOauthGuard,
-    AppResponseService,
   ],
   exports: [PassportModule, JwtStrategy, JWTModule],
 })

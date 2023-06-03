@@ -13,7 +13,7 @@ import {
 import { PodcastService } from '../service/podcast.service';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 import { CreatePodcastDto } from '../dto/create-podcast.dto';
-import { JwtAuthGuard } from '../../../common/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../utils/jwt/jwt-auth.guard';
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';

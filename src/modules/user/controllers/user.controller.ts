@@ -12,9 +12,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { JwtAuthGuard } from '../../../common/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../utils/jwt/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AppResponseService } from '../../../common/reponse/response.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 import { User } from '../../../entities/user.entity';
@@ -25,10 +24,7 @@ import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 @Controller('users')
 @UseInterceptors(MongooseClassSerializeInterceptor(User))
 export class UserController {
-  constructor(
-    private readonly appResponseService: AppResponseService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @ApiBearerAuth('JWT')
   @Get('profile')

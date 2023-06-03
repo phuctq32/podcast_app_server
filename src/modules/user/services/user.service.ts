@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../../../entities/user.entity';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { HashService } from '../../../common/hash/hash.service';
+import { HashService } from '../../../utils/hash/hash.service';
 import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 
 @Injectable()

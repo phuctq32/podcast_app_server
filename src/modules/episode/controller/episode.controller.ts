@@ -9,7 +9,7 @@ import {
 import { EpisodeService } from '../service/episode.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateEpisodeDto } from '../dto/create-episode.dto';
-import { JwtAuthGuard } from '../../../common/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../utils/jwt/jwt-auth.guard';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 import { Episode } from '../../../entities/episode.entity';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';

@@ -14,13 +14,13 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { UserLoginDto } from '../dto/user-login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from '../../../common/jwt/jwt-payload.interface';
-import { SendEmailService } from '../../../common/mailer/send-email.service';
+import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
+import { SendEmailService } from '../../../utils/mailer/send-email.service';
 import { ConfigService } from '@nestjs/config';
-import { EmailConfig } from '../../../common/mailer/email-config.interface';
+import { EmailConfig } from '../../../utils/mailer/email-config.interface';
 import * as crypto from 'crypto';
 import { ForgotPasswordVerificationDto } from '../dto/reset-password.dto';
-import { HashService } from '../../../common/hash/hash.service';
+import { HashService } from '../../../utils/hash/hash.service';
 
 @Injectable()
 export class AuthService {

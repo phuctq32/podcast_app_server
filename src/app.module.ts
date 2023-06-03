@@ -16,13 +16,20 @@ import { PodcastModule } from './modules/podcast/podcast.module';
 import { EpisodeModule } from './modules/episode/episode.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CategoryModule } from './modules/category/category.module';
+import { MediaModule } from './modules/media/media.module';
+import cloudinaryConfig from './configs/cloudinary.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      load: [databaseConfig, sendgridConfig, googleOauthConfig],
+      load: [
+        databaseConfig,
+        sendgridConfig,
+        googleOauthConfig,
+        cloudinaryConfig,
+      ],
       expandVariables: true,
       cache: true,
     }),
@@ -41,6 +48,7 @@ import { CategoryModule } from './modules/category/category.module';
     PodcastModule,
     EpisodeModule,
     CategoryModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [

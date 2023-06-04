@@ -20,6 +20,7 @@ import { User } from '../../../entities/user.entity';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
 import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 import { CreateChannelDto } from '../dto/create-channel.dto';
+import { CreatorGuard } from '../../../common/guards/creator.guard';
 
 @ApiTags('User')
 @Controller('users')
@@ -75,5 +76,15 @@ export class UserController {
   async createChannel(@Req() req, @Body() dto: CreateChannelDto) {
     dto.userId = req.user.userId;
     return await this.userService.createChannel(dto);
+  }
+
+  @ApiBearerAuth('JWT')
+  @Patch('self/channel/update')
+  @UseGuards(JwtAuthGuard, CreatorGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ResponseMessage('Created channel successfully')
+  async updateChannel(@Req() req, @Body() dto: CreateChannelDto) {
+    dto.userId = req.user.userId;
+    return await this.userService.updateChannel(dto);
   }
 }

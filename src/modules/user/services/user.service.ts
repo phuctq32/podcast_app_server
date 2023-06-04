@@ -99,4 +99,17 @@ export class UserService {
 
     return { user };
   }
+
+  async updateChannel(dto: CreateChannelDto) {
+    this.logger.log(`In func ${this.updateChannel.name}`);
+    const user = await this.userModel.findById(dto.userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.channel_name = dto.name;
+    await user.save();
+
+    return { user };
+  }
 }

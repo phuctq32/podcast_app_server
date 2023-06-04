@@ -10,6 +10,7 @@ import { Model } from 'mongoose';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { HashService } from '../../../utils/hash/hash.service';
 import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
+import { CreateChannelDto } from '../dto/create-channel.dto';
 
 @Injectable()
 export class UserService {
@@ -76,6 +77,24 @@ export class UserService {
 
     user.password = this.hashService.hash(dto.newPassword);
 
+    await user.save();
+
+    return { user };
+  }
+
+  async createChannel(dto: CreateChannelDto) {
+    this.logger.log(`In func ${this.createChannel.name}`);
+    const user = await this.userModel.findById(dto.userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.is_creator) {
+      throw new BadRequestException('Your channel already exist');
+    }
+
+    user.is_creator = true;
+    user.channel_name = dto.name;
     await user.save();
 
     return { user };

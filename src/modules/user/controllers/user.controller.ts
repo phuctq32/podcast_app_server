@@ -19,6 +19,7 @@ import { ResponseMessage } from '../../../common/decorators/message-response.dec
 import { User } from '../../../entities/user.entity';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
 import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
+import { CreateChannelDto } from '../dto/create-channel.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -27,7 +28,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiBearerAuth('JWT')
-  @Get('profile')
+  @Get('self')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getProfile(@Request() req) {
@@ -57,12 +58,22 @@ export class UserController {
   }
 
   @ApiBearerAuth('JWT')
-  @Patch('profile/change-password')
+  @Patch('self/change-password')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Change password successfully')
   async changePassword(@Req() req, @Body() dto: ChangePasswordUserDto) {
     dto.id = req.user.userId;
     return await this.userService.changeUserPassword(dto);
+  }
+
+  @ApiBearerAuth('JWT')
+  @Patch('self/channel/create')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @ResponseMessage('Created channel successfully')
+  async createChannel(@Req() req, @Body() dto: CreateChannelDto) {
+    dto.userId = req.user.userId;
+    return await this.userService.createChannel(dto);
   }
 }

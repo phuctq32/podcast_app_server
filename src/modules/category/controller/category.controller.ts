@@ -12,7 +12,7 @@ import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongo
 import { Category } from '../../../entities/category.entity';
 import { CategoryService } from '../service/category.service';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
-import { JwtAuthGuard } from '../../../utils/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 
 @ApiTags('Category')

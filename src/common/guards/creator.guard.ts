@@ -17,7 +17,6 @@ export class CreatorGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    console.log(request.user);
     if (!request.user.isCreator) {
       throw new BadRequestException('You are not creator');
     }

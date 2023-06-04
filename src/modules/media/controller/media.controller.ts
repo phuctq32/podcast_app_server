@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -15,6 +16,8 @@ import { Express } from 'express';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { MediaService } from '../service/media.service';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { CreatorGuard } from '../../../common/guards/creator.guard';
 
 @ApiTags('Media')
 @Controller('media')
@@ -35,6 +38,7 @@ export class MediaController {
     },
   })
   @Post('audio/upload')
+  @UseGuards(JwtAuthGuard, CreatorGuard)
   @UseInterceptors(FileInterceptor('file', multerOptionsForAudioFile))
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Uploaded file successfully')
@@ -56,6 +60,7 @@ export class MediaController {
     },
   })
   @Post('image/upload')
+  @UseGuards(JwtAuthGuard, CreatorGuard)
   @UseInterceptors(FileInterceptor('file', multerOptionsForImageFile))
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Uploaded file successfully')

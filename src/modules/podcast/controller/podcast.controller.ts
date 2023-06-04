@@ -6,18 +6,20 @@ import {
   HttpStatus,
   Param,
   Post,
-  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { PodcastService } from '../service/podcast.service';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
 import { CreatePodcastDto } from '../dto/create-podcast.dto';
-import { JwtAuthGuard } from '../../../utils/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
 import { Podcast } from '../../../entities/podcast.entity';
+import { CreatorGuard } from '../../../common/guards/creator.guard';
+import { Requester } from '../../../common/decorators/requester.decorator';
+import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 
 @ApiTags('Podcast')
 @Controller('podcasts')
@@ -27,11 +29,14 @@ export class PodcastController {
 
   @ApiBearerAuth('JWT')
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CreatorGuard)
   @HttpCode(HttpStatus.CREATED)
   @ResponseMessage('Create podcast successfully')
-  async createPodcast(@Req() req, @Body() dto: CreatePodcastDto) {
-    dto.author_id = req.user.userId;
+  async createPodcast(
+    @Requester() requester: JwtPayload,
+    @Body() dto: CreatePodcastDto,
+  ) {
+    dto.author_id = requester.userId;
     return await this.podcastService.createPodcast(dto);
   }
 
@@ -39,7 +44,13 @@ export class PodcastController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async getPodcastById(@Req() req, @Param('id') podcastId: string) {
-    return await this.podcastService.getPodcastById(podcastId, req.user.userId);
+  async getPodcastById(
+    @Requester() requester: JwtPayload,
+    @Param('id') podcastId: string,
+  ) {
+    return await this.podcastService.getPodcastById(
+      podcastId,
+      requester.userId,
+    );
   }
 }

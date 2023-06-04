@@ -6,13 +6,11 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Req,
-  Request,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { JwtAuthGuard } from '../../../utils/jwt/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
@@ -21,6 +19,8 @@ import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongo
 import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 import { CreateChannelDto } from '../dto/create-channel.dto';
 import { CreatorGuard } from '../../../common/guards/creator.guard';
+import { Requester } from '../../../common/decorators/requester.decorator';
+import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 
 @ApiTags('User')
 @Controller('users')
@@ -32,8 +32,8 @@ export class UserController {
   @Get('self')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async getProfile(@Request() req) {
-    const user = await this.userService.getUserById(req.user.userId);
+  async getProfile(@Requester() requester: JwtPayload) {
+    const user = await this.userService.getUserById(requester.userId);
 
     return { user };
   }
@@ -43,8 +43,11 @@ export class UserController {
   @Patch('/update')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Update user successfully')
-  async updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto) {
-    updateUserDto.id = req.user.userId;
+  async updateUser(
+    @Requester() requester: JwtPayload,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    updateUserDto.id = requester.userId;
     const user = await this.userService.updateUser(updateUserDto);
 
     return { user };
@@ -63,8 +66,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Change password successfully')
-  async changePassword(@Req() req, @Body() dto: ChangePasswordUserDto) {
-    dto.id = req.user.userId;
+  async changePassword(
+    @Requester() requester: JwtPayload,
+    @Body() dto: ChangePasswordUserDto,
+  ) {
+    dto.id = requester.userId;
     return await this.userService.changeUserPassword(dto);
   }
 
@@ -73,8 +79,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @ResponseMessage('Created channel successfully')
-  async createChannel(@Req() req, @Body() dto: CreateChannelDto) {
-    dto.userId = req.user.userId;
+  async createChannel(
+    @Requester() requester: JwtPayload,
+    @Body() dto: CreateChannelDto,
+  ) {
+    dto.userId = requester.userId;
     return await this.userService.createChannel(dto);
   }
 
@@ -82,9 +91,12 @@ export class UserController {
   @Patch('self/channel/update')
   @UseGuards(JwtAuthGuard, CreatorGuard)
   @HttpCode(HttpStatus.CREATED)
-  @ResponseMessage('Created channel successfully')
-  async updateChannel(@Req() req, @Body() dto: CreateChannelDto) {
-    dto.userId = req.user.userId;
+  @ResponseMessage('Updated channel successfully')
+  async updateChannel(
+    @Requester() requester: JwtPayload,
+    @Body() dto: CreateChannelDto,
+  ) {
+    dto.userId = requester.userId;
     return await this.userService.updateChannel(dto);
   }
 }

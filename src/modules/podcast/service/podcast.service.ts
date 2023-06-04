@@ -50,6 +50,7 @@ export class PodcastService {
     await podcast.populate('author'); // Get author info
     await podcast.populate('category'); // Get category info
     await podcast.populate('episodes'); // Get episodes of podcast
+    await podcast.calcViews();
 
     // Check requester watched
     for (let i = 0; i < podcast.episodes.length; i++) {

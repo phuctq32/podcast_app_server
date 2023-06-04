@@ -29,6 +29,9 @@ export class Episode extends BaseEntity {
   @Prop()
   href: string;
 
+  @Prop({ default: 0 })
+  num_views: number;
+
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: Podcast.name,

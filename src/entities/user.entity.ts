@@ -35,6 +35,13 @@ export class User extends BaseEntity {
   is_verified: boolean;
 
   @Prop()
+  channel_name: string;
+
+  @Prop({ default: false })
+  @Exclude()
+  is_creator: boolean;
+
+  @Prop()
   @Exclude()
   verification_code: string;
 

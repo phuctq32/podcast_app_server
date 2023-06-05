@@ -11,12 +11,15 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { HashService } from '../../../utils/hash/hash.service';
 import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 import { CreateChannelDto } from '../dto/create-channel.dto';
+import { Playlist } from '../../../entities/playlist.entity';
+import { CreatePlaylistDto } from '../dto/create-playlist.dto';
 
 @Injectable()
 export class UserService {
   private readonly logger: Logger = new Logger(UserService.name);
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Playlist.name) private readonly playlistModel: Model<Playlist>,
     private readonly hashService: HashService,
   ) {}
 
@@ -109,5 +112,29 @@ export class UserService {
     await user.save();
 
     return { user };
+  }
+
+  async createPlaylist(dto: CreatePlaylistDto) {
+    this.logger.log(`In func ${this.updateChannel.name}`);
+    const user = await this.userModel.findById(dto.userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const existingPlaylist = await this.playlistModel.findOne({
+      name: dto.name,
+      user: user._id,
+    });
+
+    if (existingPlaylist) {
+      throw new BadRequestException('Playlist name already exists');
+    }
+
+    const newPlaylist = await this.playlistModel.create({
+      name: dto.name,
+      user: user._id,
+    });
+
+    return { playlist: newPlaylist };
   }
 }

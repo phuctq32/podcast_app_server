@@ -54,7 +54,7 @@ export class PodcastService {
 
     // Check requester watched
     for (let i = 0; i < podcast.episodes.length; i++) {
-      await podcast.episodes[i].checkWatched(userId);
+      await podcast.episodes[i].checkListened(userId);
       podcast.episodes[i].podcast = undefined;
     }
 

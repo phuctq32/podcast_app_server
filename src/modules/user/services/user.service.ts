@@ -22,9 +22,7 @@ export class UserService {
 
   async getUserById(id: string) {
     this.logger.log(`In func ${this.getUserById.name}`);
-    const user = await this.userModel
-      .findById(id)
-      .select('_id email name avatar');
+    const user = await this.userModel.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }

@@ -74,6 +74,7 @@ export class UserController {
     return await this.userService.changeUserPassword(dto);
   }
 
+  // Channel
   @ApiBearerAuth('JWT')
   @Patch('self/channel/create')
   @UseGuards(JwtAuthGuard)

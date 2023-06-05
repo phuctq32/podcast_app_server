@@ -3,6 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from './base.entity';
 import { Episode } from './episode.entity';
+import { Podcast } from './podcast.entity';
 
 export type UserDocument = User & Document;
 
@@ -20,7 +21,7 @@ export class User extends BaseEntity {
 
   @Prop()
   @Exclude()
-  password?: string;
+  password: string;
 
   @Prop({
     default:
@@ -34,13 +35,44 @@ export class User extends BaseEntity {
   @Prop({ default: false })
   is_verified: boolean;
 
+  @Prop({ type: [String] })
+  search_history: string[];
+
+  /**
+   * When user register to be a creator, channel_name is required
+   * If user is not creator, channel_name is undefined
+   */
   @Prop()
   channel_name: string;
 
+  /**
+   *  To check if user is a creator
+   */
   @Prop({ default: false })
   @Exclude()
   is_creator: boolean;
 
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Episode.name }],
+  })
+  @Exclude()
+  favorite_episodes: Episode[];
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Episode.name }],
+  })
+  @Exclude()
+  listened_episodes: Episode[];
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Podcast.name }],
+  })
+  @Exclude()
+  subscribed_podcasts: Podcast[];
+
+  /**
+   * Properties for authentication function
+   */
   @Prop()
   @Exclude()
   verification_code: string;
@@ -72,12 +104,6 @@ export class User extends BaseEntity {
     token: string;
     expired_at: number;
   };
-
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Episode.name }],
-  })
-  @Exclude()
-  watched_episodes: Episode[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

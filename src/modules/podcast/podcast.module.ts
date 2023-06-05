@@ -7,6 +7,7 @@ import { UserModule } from '../user/user.module';
 import { EpisodeModule } from '../episode/episode.module';
 import { CategoryModule } from '../category/category.module';
 import { Episode } from '../../entities/episode.entity';
+import { User } from '../../entities/user.entity';
 
 @Module({
   imports: [
@@ -14,8 +15,8 @@ import { Episode } from '../../entities/episode.entity';
       {
         name: Podcast.name,
         useFactory: PodcastSchemaFactory,
-        imports: [EpisodeModule],
-        inject: [getModelToken(Episode.name)],
+        imports: [EpisodeModule, UserModule],
+        inject: [getModelToken(Episode.name), getModelToken(User.name)],
       },
     ]),
     UserModule,

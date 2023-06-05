@@ -53,7 +53,7 @@ export const EpisodeSchemaFactory = async (userModel: Model<UserDocument>) => {
       _id: userId,
       watched_episodes: { $in: [this._id] },
     });
-    this._doc.is_watched = !!user;
+    this._doc.is_listened = !!user;
   };
 
   return episodeSchema;

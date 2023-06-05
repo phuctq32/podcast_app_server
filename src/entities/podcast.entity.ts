@@ -52,7 +52,10 @@ export class Podcast extends BaseEntity {
 
 export const PodcastSchema = SchemaFactory.createForClass(Podcast);
 
-export const PodcastSchemaFactory = async (episodeModel: Model<Episode>) => {
+export const PodcastSchemaFactory = async (
+  episodeModel: Model<Episode>,
+  userModel: Model<User>,
+) => {
   const podcastSchema = PodcastSchema;
   podcastSchema.virtual('episodes', {
     ref: Episode.name,
@@ -67,6 +70,17 @@ export const PodcastSchemaFactory = async (episodeModel: Model<Episode>) => {
       totalViews = episodes.reduce((res, val) => res + val.num_views, 0);
     }
     this._doc.num_views = totalViews;
+  };
+
+  podcastSchema.methods.checkSubscription = async function (
+    userId: string,
+  ): Promise<void> {
+    const user = await userModel.findOne({
+      _id: userId,
+      subscribed_podcasts: { $in: [this._id] },
+    });
+
+    this._doc.is_subcribed = !!user;
   };
 
   return podcastSchema;

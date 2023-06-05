@@ -40,7 +40,7 @@ export class Episode extends BaseEntity {
   @Type(() => Podcast)
   podcast: Podcast;
 
-  checkWatched: (userId) => Promise<void>;
+  checkListened: (userId) => Promise<void>;
 }
 
 export const EpisodeSchema = SchemaFactory.createForClass(Episode);
@@ -48,10 +48,10 @@ export const EpisodeSchema = SchemaFactory.createForClass(Episode);
 export const EpisodeSchemaFactory = async (userModel: Model<UserDocument>) => {
   const episodeSchema = EpisodeSchema;
 
-  episodeSchema.methods.checkWatched = async function (userId) {
+  episodeSchema.methods.checkListened = async function (userId) {
     const user = await userModel.findOne({
       _id: userId,
-      watched_episodes: { $in: [this._id] },
+      listened_episodes: { $in: [this._id] },
     });
     this._doc.is_listened = !!user;
   };

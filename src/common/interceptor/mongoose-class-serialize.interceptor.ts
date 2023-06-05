@@ -5,7 +5,7 @@ import {
   Type,
 } from '@nestjs/common';
 import { Document } from 'mongoose';
-import { ClassTransformOptions, plainToClass } from 'class-transformer';
+import { ClassTransformOptions, plainToInstance } from 'class-transformer';
 
 export default function MongooseClassSerializeInterceptor(
   classToIntercept: Type,
@@ -16,10 +16,12 @@ export default function MongooseClassSerializeInterceptor(
     );
     private changePlainObjectToClass(obj: PlainLiteralObject) {
       if (obj instanceof Document) {
-        return plainToClass(classToIntercept, obj.toJSON());
+        return plainToInstance(classToIntercept, obj.toJSON());
       }
 
-      if (typeof obj === 'object') {
+      if (Array.isArray(obj)) {
+        return obj.map(this.changePlainObjectToClass);
+      } else if (typeof obj === 'object') {
         Object.keys(obj).forEach((key) => {
           obj[key] = this.changePlainObjectToClass(obj[key]);
         });
@@ -28,25 +30,12 @@ export default function MongooseClassSerializeInterceptor(
       return obj;
     }
 
-    private prepareResponse(
-      response:
-        | PlainLiteralObject
-        | PlainLiteralObject[]
-        | { items: PlainLiteralObject[]; count: number },
-    ) {
-      if (!Array.isArray(response) && response?.items) {
-        const items = this.prepareResponse(response.items);
-        return {
-          count: response.count,
-          items,
-        };
-      }
+    private prepareResponse(response: object) {
+      Object.keys(response).forEach((key) => {
+        response[key] = this.changePlainObjectToClass(response[key]);
+      });
 
-      if (Array.isArray(response)) {
-        return response.map(this.changePlainObjectToClass);
-      }
-
-      return this.changePlainObjectToClass(response);
+      return response;
     }
 
     serialize(
@@ -54,6 +43,7 @@ export default function MongooseClassSerializeInterceptor(
       options: ClassTransformOptions,
     ) {
       this.logger.log(`Transforming response...`);
+      this.logger.debug(classToIntercept.name);
       return super.serialize(this.prepareResponse(response), options);
     }
   };

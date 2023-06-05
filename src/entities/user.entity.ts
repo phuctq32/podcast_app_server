@@ -30,7 +30,7 @@ export class User extends BaseEntity {
   avatar: string;
 
   @Prop()
-  birthday?: Date;
+  birthday: Date;
 
   @Prop({ default: false })
   is_verified: boolean;
@@ -39,7 +39,7 @@ export class User extends BaseEntity {
   search_history: string[];
 
   /**
-   * When user register to be a creator, channel_name is required
+   * When user register to be a creator, channel_name is required.
    * If user is not creator, channel_name is undefined
    */
   @Prop()

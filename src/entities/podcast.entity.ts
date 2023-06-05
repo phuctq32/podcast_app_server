@@ -4,7 +4,7 @@ import mongoose, { Document, Model } from 'mongoose';
 import { User } from './user.entity';
 import { Transform, Type } from 'class-transformer';
 import { Category } from './category.entity';
-import { Episode, EpisodeDocument } from './episode.entity';
+import { Episode } from './episode.entity';
 
 export type PodcastDocument = Podcast & Document;
 
@@ -45,7 +45,7 @@ export class Podcast extends BaseEntity {
   @Transform(({ value }) => ({ items: value, count: value.length }), {
     toPlainOnly: true,
   })
-  episodes?: EpisodeDocument[];
+  episodes?: Episode[];
 
   calcViews: () => Promise<void>;
 }

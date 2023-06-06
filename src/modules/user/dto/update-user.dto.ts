@@ -1,4 +1,4 @@
-import { IsDate, IsNotEmpty, IsOptional, IsUrl, Length } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUrl, Length } from 'class-validator';
 import BaseDto from '../../../common/base.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -19,6 +19,5 @@ export class UpdateUserDto extends BaseDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsDate()
   birthday: Date;
 }

@@ -127,8 +127,20 @@ export class UserController {
   @Get('self/playlists')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(MongooseClassSerializeInterceptor(Playlist))
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   async getPlaylists(@Requester() requester: JwtPayload) {
     return await this.userService.listPlaylists(requester.userId);
+  }
+
+  @ApiBearerAuth('JWT')
+  @Get('self/playlists/:id')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(MongooseClassSerializeInterceptor(Playlist))
+  @HttpCode(HttpStatus.OK)
+  async getPlaylistById(
+    @Requester() requester: JwtPayload,
+    @Param('id') playlistId: string,
+  ) {
+    return await this.userService.getPlaylistById(requester.userId, playlistId);
   }
 }

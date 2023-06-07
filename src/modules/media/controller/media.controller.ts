@@ -60,7 +60,7 @@ export class MediaController {
     },
   })
   @Post('image/upload')
-  @UseGuards(JwtAuthGuard, CreatorGuard)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file', multerOptionsForImageFile))
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Uploaded file successfully')

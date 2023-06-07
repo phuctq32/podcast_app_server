@@ -1,13 +1,19 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument, PopulatedDoc } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from './base.entity';
-import { Episode } from './episode.entity';
-import { Podcast } from './podcast.entity';
+import { Episode, EpisodePopulatedDoc } from './episode.entity';
+import { Podcast, PodcastPopulatedDoc } from './podcast.entity';
 
-export type UserDocument = User & Document;
+export type UserDocument = HydratedDocument<User>;
+export type UserPopulatedDoc = PopulatedDoc<User>;
 
-@Schema()
+@Schema({
+  timestamps: {
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+})
 export class User extends BaseEntity {
   @Prop({
     required: true,
@@ -49,26 +55,25 @@ export class User extends BaseEntity {
    *  To check if user is a creator
    */
   @Prop({ default: false })
-  @Exclude()
   is_creator: boolean;
 
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Episode.name }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Episode' }],
   })
   @Exclude()
-  favorite_episodes: Episode[];
+  favorite_episodes: EpisodePopulatedDoc;
 
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Episode.name }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Episode' }],
   })
   @Exclude()
-  listened_episodes: Episode[];
+  listened_episodes: EpisodePopulatedDoc[];
 
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Podcast.name }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Podcast' }],
   })
   @Exclude()
-  subscribed_podcasts: Podcast[];
+  subscribed_podcasts: PodcastPopulatedDoc[];
 
   /**
    * Properties for authentication function

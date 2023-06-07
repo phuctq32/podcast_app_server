@@ -25,7 +25,7 @@ export class UserService {
 
   async getUserById(id: string) {
     this.logger.log(`In func ${this.getUserById.name}`);
-    const user = await this.userModel.findById(id);
+    const user = await this.userModel.findOne({ _id: id });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -35,10 +35,7 @@ export class UserService {
 
   async updateUser(updateUserDto: UpdateUserDto) {
     this.logger.log(`In func ${this.updateUser.name}`);
-    const user = await this.userModel.findById(updateUserDto.id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    const user = await this.getUserById(updateUserDto.id);
 
     if (updateUserDto.name) {
       user.name = updateUserDto.name;
@@ -59,10 +56,7 @@ export class UserService {
 
   async changeUserPassword(dto: ChangePasswordUserDto) {
     this.logger.log(`In func ${this.changeUserPassword.name}`);
-    const user = await this.userModel.findById(dto.id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    const user = await this.getUserById(dto.id);
 
     // Check valid current password
     if (!this.hashService.compare(dto.currentPassword, user.password)) {
@@ -85,10 +79,7 @@ export class UserService {
 
   async createChannel(dto: CreateChannelDto) {
     this.logger.log(`In func ${this.createChannel.name}`);
-    const user = await this.userModel.findById(dto.userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    const user = await this.getUserById(dto.userId);
 
     if (user.is_creator) {
       throw new BadRequestException('Your channel already exist');
@@ -103,10 +94,7 @@ export class UserService {
 
   async updateChannel(dto: CreateChannelDto) {
     this.logger.log(`In func ${this.updateChannel.name}`);
-    const user = await this.userModel.findById(dto.userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    const user = await this.getUserById(dto.userId);
 
     user.channel_name = dto.name;
     await user.save();
@@ -115,11 +103,8 @@ export class UserService {
   }
 
   async createPlaylist(dto: CreatePlaylistDto) {
-    this.logger.log(`In func ${this.updateChannel.name}`);
-    const user = await this.userModel.findById(dto.userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    this.logger.log(`In func ${this.createPlaylist.name}`);
+    const user = await this.getUserById(dto.userId);
 
     const existingPlaylist = await this.playlistModel.findOne({
       name: dto.name,
@@ -136,5 +121,27 @@ export class UserService {
     });
 
     return { playlist: newPlaylist };
+  }
+
+  async listPlaylists(userId: string) {
+    this.logger.log(`In func ${this.listPlaylists.name}`);
+    const user = await this.getUserById(userId);
+
+    const playlists = await this.playlistModel.find({ user: user._id });
+
+    return { playlists };
+  }
+
+  async getPlaylistById(userId: string, playlistId: string) {
+    this.logger.log(`In func ${this.getPlaylistById.name}`);
+    const user = await this.getUserById(userId);
+    const playlist = await this.playlistModel.findOne({ _id: playlistId });
+    if (playlist.user.toString() !== user._id.toString()) {
+      throw new BadRequestException('User is not playlist author');
+    }
+
+    await playlist.populate('episodes');
+
+    return { playlist };
   }
 }

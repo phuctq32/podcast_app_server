@@ -1,20 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { HydratedDocument, Model, PopulatedDoc } from 'mongoose';
+import {
+  ArrayClassTransform,
+  ClassTransform,
+} from '../common/decorators/transform.decorator';
+import { User, UserPopulatedDoc } from './user.entity';
 import { BaseEntity } from './base.entity';
-import mongoose, { Document, Model } from 'mongoose';
-import { User } from './user.entity';
-import { Transform, Type } from 'class-transformer';
-import { Category } from './category.entity';
-import { Episode } from './episode.entity';
+import { Category, CategoryPopulatedDoc } from './category.entity';
+import { Episode, EpisodePopulatedDoc } from './episode.entity';
 
-export type PodcastDocument = Podcast & Document;
+export type PodcastDocument = Podcast & HydratedDocument<any>;
+export type PodcastPopulatedDoc = PopulatedDoc<PodcastDocument>;
 
 @Schema({
   timestamps: {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
   },
-  toJSON: { virtuals: true, getters: true },
-  toObject: { virtuals: true, getters: true },
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
 })
 export class Podcast extends BaseEntity {
   @Prop({ required: true })
@@ -27,8 +31,8 @@ export class Podcast extends BaseEntity {
     type: mongoose.Schema.Types.ObjectId,
     ref: Category.name,
   })
-  @Type(() => Category)
-  category: Category;
+  @ClassTransform(() => Category)
+  category: CategoryPopulatedDoc;
 
   @Prop()
   image: string;
@@ -38,14 +42,11 @@ export class Podcast extends BaseEntity {
     ref: 'User',
     required: true,
   })
-  @Type(() => User)
-  author: User;
+  @ClassTransform(() => User)
+  author: UserPopulatedDoc;
 
-  @Type(() => Episode)
-  @Transform(({ value }) => ({ items: value, count: value.length }), {
-    toPlainOnly: true,
-  })
-  episodes?: Episode[];
+  @ArrayClassTransform(() => Episode)
+  episodes: EpisodePopulatedDoc[];
 
   calcViews: () => Promise<void>;
 }
@@ -63,6 +64,9 @@ export const PodcastSchemaFactory = async (
     foreignField: 'podcast',
   });
 
+  /**
+   * Calculate the total views of podcast
+   */
   podcastSchema.methods.calcViews = async function (): Promise<void> {
     let totalViews = 0;
     const episodes = await episodeModel.find({ podcast: this._id });

@@ -1,11 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+// import { Podcast } from './internal';
+import mongoose, { HydratedDocument, Model, PopulatedDoc } from 'mongoose';
+import { ClassTransform } from '../common/decorators/transform.decorator';
 import { BaseEntity } from './base.entity';
-import mongoose, { Document, Model } from 'mongoose';
-import { Podcast } from './podcast.entity';
-import { Type } from 'class-transformer';
+import { Podcast, PodcastPopulatedDoc } from './podcast.entity';
 import { UserDocument } from './user.entity';
 
-export type EpisodeDocument = Episode & Document;
+export type EpisodeDocument = HydratedDocument<Episode>;
+export type EpisodePopulatedDoc = PopulatedDoc<EpisodeDocument>;
 
 @Schema({
   timestamps: {
@@ -34,11 +36,11 @@ export class Episode extends BaseEntity {
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: Podcast.name,
+    ref: 'Podcast',
     required: true,
   })
-  @Type(() => Podcast)
-  podcast: Podcast;
+  @ClassTransform(() => Podcast)
+  podcast: PodcastPopulatedDoc;
 
   checkListened: (userId) => Promise<void>;
 }

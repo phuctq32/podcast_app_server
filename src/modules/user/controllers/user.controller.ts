@@ -122,4 +122,13 @@ export class UserController {
     dto.userId = requester.userId;
     return await this.userService.createPlaylist(dto);
   }
+
+  @ApiBearerAuth('JWT')
+  @Get('self/playlists')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(MongooseClassSerializeInterceptor(Playlist))
+  @HttpCode(HttpStatus.CREATED)
+  async getPlaylists(@Requester() requester: JwtPayload) {
+    return await this.userService.listPlaylists(requester.userId);
+  }
 }

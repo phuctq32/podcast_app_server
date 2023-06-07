@@ -4,7 +4,7 @@ import { Podcast } from '../../../entities/podcast.entity';
 import { Model } from 'mongoose';
 import { User } from '../../../entities/user.entity';
 import { CreatePodcastDto } from '../dto/create-podcast.dto';
-import { Episode } from '../../../entities/episode.entity';
+import { Episode, EpisodeDocument } from '../../../entities/episode.entity';
 import { Category } from '../../../entities/category.entity';
 
 @Injectable()
@@ -46,16 +46,15 @@ export class PodcastService {
     if (!podcast) {
       throw new NotFoundException('Podcast not found');
     }
-
-    await podcast.populate('author'); // Get author info
+    await podcast.populate('author'); // Get author info;
     await podcast.populate('category'); // Get category info
     await podcast.populate('episodes'); // Get episodes of podcast
     await podcast.calcViews();
 
     // Check requester watched
     for (let i = 0; i < podcast.episodes.length; i++) {
-      await podcast.episodes[i].checkListened(userId);
-      podcast.episodes[i].podcast = undefined;
+      await (podcast.episodes[i] as EpisodeDocument).checkListened(userId);
+      (podcast.episodes[i] as EpisodeDocument).podcast = undefined;
     }
 
     return { podcast };

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -20,6 +21,12 @@ import { CreateCategoryDto } from '../dto/create-category.dto';
 @UseInterceptors(MongooseClassSerializeInterceptor(Category))
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
+
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getCategories() {
+    return await this.categoryService.listCategories();
+  }
 
   @ApiBearerAuth('JWT')
   @Post()

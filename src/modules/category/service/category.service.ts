@@ -11,7 +11,15 @@ export class CategoryService {
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
   ) {}
 
+  async listCategories() {
+    this.logger.log(`In func ${this.listCategories.name}`);
+
+    return await this.categoryModel.find();
+  }
+
   async createCategory(dto: CreateCategoryDto) {
+    this.logger.log(`In func ${this.createCategory.name}`);
+
     const newCategory = await this.categoryModel.create(dto);
 
     return { newCategory };

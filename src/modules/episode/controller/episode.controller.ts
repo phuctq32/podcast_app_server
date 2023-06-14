@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   UseGuards,
   UseInterceptors,
@@ -15,12 +17,26 @@ import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongo
 import { CreatorGuard } from '../../../common/guards/creator.guard';
 import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
+import { MongoIdValidationPipe } from '../../../common/validation/mongoid-validation.pipe';
 
 @ApiTags('Episode')
 @Controller('episodes')
 @UseInterceptors(MongooseClassSerializeInterceptor(Episode))
 export class EpisodeController {
   constructor(private readonly episodeService: EpisodeService) {}
+
+  @ApiBearerAuth('JWT')
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getEpisodeById(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) episodeId: string,
+  ) {
+    return await this.episodeService.getEpisodeById(
+      episodeId,
+      requester.userId,
+    );
+  }
 
   @ApiBearerAuth('JWT')
   @Post()

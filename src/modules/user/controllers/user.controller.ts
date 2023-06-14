@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,11 +21,10 @@ import { CreatorGuard } from '../../../common/guards/creator.guard';
 import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
-import { CreatePlaylistDto } from '../dto/create-playlist.dto';
-import { Playlist } from '../../../entities/playlist.entity';
 
 @ApiTags('User')
 @Controller('users')
+@UseInterceptors(MongooseClassSerializeInterceptor(User))
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -34,7 +32,6 @@ export class UserController {
   @Get('self')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(MongooseClassSerializeInterceptor(User))
   async getProfile(@Requester() requester: JwtPayload) {
     const user = await this.userService.getUserById(requester.userId);
 
@@ -44,7 +41,6 @@ export class UserController {
   @ApiBearerAuth('JWT')
   @Patch('/update')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(MongooseClassSerializeInterceptor(User))
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Update user successfully')
   async updateUser(
@@ -68,7 +64,6 @@ export class UserController {
   @ApiBearerAuth('JWT')
   @Patch('self/change-password')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(MongooseClassSerializeInterceptor(User))
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Change password successfully')
   async changePassword(
@@ -83,7 +78,6 @@ export class UserController {
   @ApiBearerAuth('JWT')
   @Patch('self/channel/create')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(MongooseClassSerializeInterceptor(User))
   @HttpCode(HttpStatus.CREATED)
   @ResponseMessage('Created channel successfully')
   async createChannel(
@@ -97,7 +91,6 @@ export class UserController {
   @ApiBearerAuth('JWT')
   @Patch('self/channel/update')
   @UseGuards(JwtAuthGuard, CreatorGuard)
-  @UseInterceptors(MongooseClassSerializeInterceptor(User))
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Updated channel successfully')
   async updateChannel(
@@ -106,41 +99,5 @@ export class UserController {
   ) {
     dto.userId = requester.userId;
     return await this.userService.updateChannel(dto);
-  }
-
-  // Playlist
-  @ApiBearerAuth('JWT')
-  @Post('self/playlists')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(MongooseClassSerializeInterceptor(Playlist))
-  @HttpCode(HttpStatus.CREATED)
-  @ResponseMessage('Created playlist successfully')
-  async createPlaylist(
-    @Requester() requester: JwtPayload,
-    @Body() dto: CreatePlaylistDto,
-  ) {
-    dto.userId = requester.userId;
-    return await this.userService.createPlaylist(dto);
-  }
-
-  @ApiBearerAuth('JWT')
-  @Get('self/playlists')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(MongooseClassSerializeInterceptor(Playlist))
-  @HttpCode(HttpStatus.OK)
-  async getPlaylists(@Requester() requester: JwtPayload) {
-    return await this.userService.listPlaylists(requester.userId);
-  }
-
-  @ApiBearerAuth('JWT')
-  @Get('self/playlists/:id')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(MongooseClassSerializeInterceptor(Playlist))
-  @HttpCode(HttpStatus.OK)
-  async getPlaylistById(
-    @Requester() requester: JwtPayload,
-    @Param('id') playlistId: string,
-  ) {
-    return await this.userService.getPlaylistById(requester.userId, playlistId);
   }
 }

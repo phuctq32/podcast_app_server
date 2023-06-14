@@ -1,7 +1,6 @@
 import { Transform } from 'class-transformer';
-import { ObjectId } from 'mongoose';
 
 export class BaseEntity {
-  @Transform(({ value }) => value.toString())
-  _id?: ObjectId;
+  @Transform(({ obj }) => obj?._id?.toString(), { toClassOnly: true })
+  _id?: string;
 }

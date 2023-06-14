@@ -17,7 +17,7 @@ export class Playlist extends BaseEntity {
   @ArrayClassTransform(() => Episode)
   episodes: EpisodePopulatedDoc[];
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Episode' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   @Exclude()
   user: Types.ObjectId;
 }

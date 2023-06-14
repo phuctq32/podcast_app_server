@@ -17,43 +17,23 @@ const ObjectIdTypeTransform = (classToTransform: () => ClassConstructor<any>) =>
     if (Array.isArray(object[property])) {
       if (
         object[property].length == 0 ||
-        Types.ObjectId.isValid(object[property][0])
+        (Types.ObjectId.isValid(object[property][0]) &&
+          typeof object[property][0] !== 'string')
       ) {
-        console.log(property, 'array undefined');
-        return undefined;
+        return String;
       }
     }
 
     // If object[property] is an ObjectId, return undefined (still keep value, not transform)
-    if (Types.ObjectId.isValid(object[property])) {
-      console.log(property, 'object undefined');
-      return undefined;
+    if (
+      Types.ObjectId.isValid(object[property]) &&
+      typeof object[property] !== 'string'
+    ) {
+      return String;
     }
-
-    console.log(property, classToTransform());
 
     return classToTransform();
   });
-
-// /**
-//  * Format array to object has the form { items: array, count: arrayLength }
-//  */
-// export const ArrayTransform = () =>
-//   Transform(
-//     ({ value }) => {
-//       let items = value;
-//       const count = value.length;
-//
-//       if (value.length > 0 && Types.ObjectId.isValid(value[0])) {
-//         items = value.map((_id) => _id.toString());
-//       }
-//
-//       return { items, count };
-//     },
-//     {
-//       toPlainOnly: true,
-//     },
-//   );
 
 /**
  * If value type is ObjectId, transform to string.
@@ -61,15 +41,7 @@ const ObjectIdTypeTransform = (classToTransform: () => ClassConstructor<any>) =>
  * Don't use for virtual properties.
  */
 export const ClassTransform = (classToTransform: () => ClassConstructor<any>) =>
-  applyDecorators(
-    ObjectIdTypeTransform(classToTransform),
-    Transform(({ value }) => {
-      if (Types.ObjectId.isValid(value)) {
-        return value.toString();
-      }
-      return value;
-    }),
-  );
+  applyDecorators(ObjectIdTypeTransform(classToTransform));
 
 /**
  * Transform array. Combine ObjectIdTypeTransform and ArrayTransform.
@@ -82,13 +54,9 @@ export const ArrayClassTransform = (
   applyDecorators(
     ObjectIdTypeTransform(classToTransform),
     Transform(
-      ({ value }) => {
-        let items = value;
-        const count = value.length;
-
-        if (value.length > 0 && Types.ObjectId.isValid(value[0])) {
-          items = value.map((_id) => _id.toString());
-        }
+      ({ obj, key }) => {
+        const items = obj[key];
+        const count = obj[key].length;
 
         return { items, count };
       },

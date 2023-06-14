@@ -18,6 +18,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CategoryModule } from './modules/category/category.module';
 import { MediaModule } from './modules/media/media.module';
 import cloudinaryConfig from './configs/cloudinary.config';
+import { PlaylistModule } from './modules/playlist/playlist.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import cloudinaryConfig from './configs/cloudinary.config';
     EpisodeModule,
     CategoryModule,
     MediaModule,
+    PlaylistModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-// import { Podcast } from './internal';
 import mongoose, { HydratedDocument, Model, PopulatedDoc } from 'mongoose';
 import { ClassTransform } from '../common/decorators/transform.decorator';
 import { BaseEntity } from './base.entity';

@@ -20,6 +20,7 @@ import { Podcast } from '../../../entities/podcast.entity';
 import { CreatorGuard } from '../../../common/guards/creator.guard';
 import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
+import { MongoIdValidationPipe } from '../../../common/validation/mongoid-validation.pipe';
 
 @ApiTags('Podcast')
 @Controller('podcasts')
@@ -46,7 +47,7 @@ export class PodcastController {
   @HttpCode(HttpStatus.OK)
   async getPodcastById(
     @Requester() requester: JwtPayload,
-    @Param('id') podcastId: string,
+    @Param('id', MongoIdValidationPipe) podcastId: string,
   ) {
     return await this.podcastService.getPodcastById(
       podcastId,

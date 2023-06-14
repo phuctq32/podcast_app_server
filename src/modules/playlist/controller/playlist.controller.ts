@@ -21,6 +21,7 @@ import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 import { CreatePlaylistDto } from '../../user/dto/create-playlist.dto';
 import { AddEpisodeDto } from '../dto/add-episode.dto';
+import { MongoIdValidationPipe } from '../../../common/validation/mongoid-validation.pipe';
 
 @ApiTags('Playlist')
 @Controller('playlists')
@@ -55,7 +56,7 @@ export class PlaylistController {
   @HttpCode(HttpStatus.OK)
   async getPlaylistById(
     @Requester() requester: JwtPayload,
-    @Param('id') playlistId: string,
+    @Param('id', MongoIdValidationPipe) playlistId: string,
   ) {
     return await this.playlistService.getPlaylistById(
       requester.userId,
@@ -70,7 +71,7 @@ export class PlaylistController {
   @ResponseMessage('Added episode to playlist')
   async addEpisodeToPlaylist(
     @Requester() requester: JwtPayload,
-    @Param('id') playlistId: string,
+    @Param('id', MongoIdValidationPipe) playlistId: string,
     @Body() dto: AddEpisodeDto,
   ) {
     dto.user_id = requester.userId;
@@ -85,7 +86,7 @@ export class PlaylistController {
   @ResponseMessage('Removed episode from playlist')
   async removeEpisodeFromPlaylist(
     @Requester() requester: JwtPayload,
-    @Param('id') playlistId: string,
+    @Param('id', MongoIdValidationPipe) playlistId: string,
     @Body() dto: AddEpisodeDto,
   ) {
     dto.user_id = requester.userId;
@@ -100,7 +101,7 @@ export class PlaylistController {
   @ResponseMessage('Removed episode from playlist')
   async removePlaylist(
     @Requester() requester: JwtPayload,
-    @Param('id') playlistId: string,
+    @Param('id', MongoIdValidationPipe) playlistId: string,
   ) {
     return await this.playlistService.removePlaylist(
       requester.userId,

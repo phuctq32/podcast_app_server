@@ -21,6 +21,7 @@ import { CreatorGuard } from '../../../common/guards/creator.guard';
 import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
+import { MongoIdValidationPipe } from '../../../common/validation/mongoid-validation.pipe';
 
 @ApiTags('User')
 @Controller('users')
@@ -55,7 +56,7 @@ export class UserController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async getUserById(@Param('id') id: string) {
+  async getUserById(@Param('id', MongoIdValidationPipe) id: string) {
     const user = await this.userService.getUserById(id);
 
     return { user };

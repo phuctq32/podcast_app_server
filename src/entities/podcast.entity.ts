@@ -49,6 +49,7 @@ export class Podcast extends BaseEntity {
   episodes: EpisodePopulatedDoc[];
 
   calcViews: () => Promise<void>;
+  checkSubscription: (userId: string) => Promise<void>;
 }
 
 export const PodcastSchema = SchemaFactory.createForClass(Podcast);
@@ -87,7 +88,7 @@ export const PodcastSchemaFactory = async (
       subscribed_podcasts: { $in: [this._id] },
     });
 
-    this._doc.is_subcribed = !!user;
+    this._doc.is_subscribed = !!user;
   };
 
   return podcastSchema;

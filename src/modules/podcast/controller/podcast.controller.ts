@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   UseGuards,
   UseInterceptors,
@@ -21,6 +22,7 @@ import { CreatorGuard } from '../../../common/guards/creator.guard';
 import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 import { MongoIdValidationPipe } from '../../../common/validation/mongoid-validation.pipe';
+import { UpdatePodcastDto } from '../dto/update-podcast.dto';
 
 @ApiTags('Podcast')
 @Controller('podcasts')
@@ -52,6 +54,23 @@ export class PodcastController {
     return await this.podcastService.getPodcastById(
       podcastId,
       requester.userId,
+    );
+  }
+
+  @ApiBearerAuth('JWT')
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Updated podcast successfully')
+  async updatePodcast(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) podcastId: string,
+    @Body() dto: UpdatePodcastDto,
+  ) {
+    return await this.podcastService.updatePodcast(
+      podcastId,
+      requester.userId,
+      dto,
     );
   }
 }

@@ -90,8 +90,6 @@ export class EpisodeService {
     if (dto.podcast_id && dto.podcast_id !== episode.podcast._id.toString()) {
       throw new BadRequestException('User is not changing podcast author');
     }
-    delete dto.description;
-    console.log(dto);
     Object.keys(dto).forEach((key) => {
       episode[key] = dto[key];
     });

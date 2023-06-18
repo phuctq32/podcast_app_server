@@ -99,6 +99,15 @@ export class EpisodeService {
   }
 
   // listen
+  async getListenedEpisodes(userId: string) {
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    await user.populate('listened_episodes');
+    return { listened_episodes: user.listened_episodes };
+  }
+
   async listen(episodeId: string, userId: string) {
     const episode = await this.episodeModel.findOne({ _id: episodeId });
     if (!episode) {
@@ -111,6 +120,10 @@ export class EpisodeService {
     }
 
     episode.num_listening++;
+    if (!user.listened_episodes.includes(episode._id)) {
+      user.listened_episodes.push(episode._id);
+      await user.save();
+    }
     await episode.save();
     await episode.checkListened(userId);
 

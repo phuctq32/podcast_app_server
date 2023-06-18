@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { EpisodeService } from '../service/episode.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateEpisodeDto } from '../dto/create-episode.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
@@ -66,6 +66,15 @@ export class EpisodeController {
       requester.userId,
       dto,
     );
+  }
+
+  @ApiOperation({ description: 'Get history listened episodes' })
+  @ApiBearerAuth('JWT')
+  @Get('/self/listened')
+  @UseGuards(JwtAuthGuard)
+  async getListenedEpisodes(@Requester() requester: JwtPayload) {
+    console.log('do');
+    return await this.episodeService.getListenedEpisodes(requester.userId);
   }
 
   @ApiBearerAuth('JWT')

@@ -73,7 +73,6 @@ export class EpisodeController {
   @Get('/self/listened')
   @UseGuards(JwtAuthGuard)
   async getListenedEpisodes(@Requester() requester: JwtPayload) {
-    console.log('do');
     return await this.episodeService.getListenedEpisodes(requester.userId);
   }
 
@@ -90,7 +89,7 @@ export class EpisodeController {
 
   // favorite
   @ApiBearerAuth('JWT')
-  @Get(':id/favorite')
+  @Get('favorite')
   @UseGuards(JwtAuthGuard)
   async getFavoriteList(@Requester() requester: JwtPayload) {
     return await this.episodeService.getFavorite(requester.userId);

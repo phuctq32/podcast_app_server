@@ -31,7 +31,7 @@ export class Episode extends BaseEntity {
   href: string;
 
   @Prop({ default: 0 })
-  num_views: number;
+  num_listening: number;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,

@@ -18,6 +18,7 @@ import { User } from '../../entities/user.entity';
       },
     ]),
     forwardRef(() => PodcastModule),
+    UserModule,
   ],
   controllers: [EpisodeController],
   providers: [EpisodeService],

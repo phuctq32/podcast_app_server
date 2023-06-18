@@ -2,8 +2,8 @@ import mongoose, { HydratedDocument, PopulatedDoc } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from './base.entity';
-import { Episode, EpisodePopulatedDoc } from './episode.entity';
-import { Podcast, PodcastPopulatedDoc } from './podcast.entity';
+import { EpisodePopulatedDoc } from './episode.entity';
+import { PodcastPopulatedDoc } from './podcast.entity';
 
 export type UserDocument = HydratedDocument<User>;
 export type UserPopulatedDoc = PopulatedDoc<User>;
@@ -61,7 +61,7 @@ export class User extends BaseEntity {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Episode' }],
   })
   @Exclude()
-  favorite_episodes: EpisodePopulatedDoc;
+  favorite_episodes: EpisodePopulatedDoc[];
 
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Episode' }],

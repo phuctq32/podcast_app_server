@@ -68,12 +68,15 @@ export const PodcastSchemaFactory = async (
    * Calculate the total views of podcast
    */
   podcastSchema.methods.calcViews = async function (): Promise<void> {
-    let totalViews = 0;
+    let totalListening = 0;
     const episodes = await episodeModel.find({ podcast: this._id });
     if (episodes.length > 0) {
-      totalViews = episodes.reduce((res, val) => res + val.num_views, 0);
+      totalListening = episodes.reduce(
+        (res, val) => res + val.num_listening,
+        0,
+      );
     }
-    this._doc.num_views = totalViews;
+    this._doc.num_listening = totalListening;
   };
 
   podcastSchema.methods.checkSubscription = async function (

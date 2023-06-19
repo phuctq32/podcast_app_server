@@ -15,7 +15,7 @@ import { ResponseMessage } from '../../../common/decorators/message-response.dec
 import { CreatePodcastDto } from '../dto/create-podcast.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
 import { Podcast } from '../../../entities/podcast.entity';
 import { CreatorGuard } from '../../../common/guards/creator.guard';
@@ -30,6 +30,7 @@ import { UpdatePodcastDto } from '../dto/update-podcast.dto';
 export class PodcastController {
   constructor(private readonly podcastService: PodcastService) {}
 
+  @ApiOperation({ summary: 'Create podcast' })
   @ApiBearerAuth('JWT')
   @Post()
   @UseGuards(JwtAuthGuard, CreatorGuard)
@@ -43,6 +44,7 @@ export class PodcastController {
     return await this.podcastService.createPodcast(dto);
   }
 
+  @ApiOperation({ summary: 'Get podcast by id' })
   @ApiBearerAuth('JWT')
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -57,6 +59,7 @@ export class PodcastController {
     );
   }
 
+  @ApiOperation({ summary: 'Update podcast' })
   @ApiBearerAuth('JWT')
   @Patch(':id')
   @UseGuards(JwtAuthGuard)

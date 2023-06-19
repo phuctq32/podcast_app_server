@@ -8,7 +8,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import MongooseClassSerializeInterceptor from '../../../common/interceptor/mongoose-class-serialize.interceptor';
 import { Category } from '../../../entities/category.entity';
 import { CategoryService } from '../service/category.service';
@@ -22,12 +22,17 @@ import { CreateCategoryDto } from '../dto/create-category.dto';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  @ApiOperation({ summary: 'Get all categories' })
   @Get()
   @HttpCode(HttpStatus.OK)
   async getCategories() {
     return await this.categoryService.listCategories();
   }
 
+  @ApiOperation({
+    summary: 'Create category',
+    description: 'This API only use to create default categories for app',
+  })
   @ApiBearerAuth('JWT')
   @Post()
   @UseGuards(JwtAuthGuard)

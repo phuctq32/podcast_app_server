@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { EpisodeService } from '../service/episode.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateEpisodeDto } from '../dto/create-episode.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
@@ -27,6 +27,7 @@ import { UpdateEpisodeDto } from '../dto/update-episode.dto';
 export class EpisodeController {
   constructor(private readonly episodeService: EpisodeService) {}
 
+  @ApiOperation({ summary: 'Get an episode by id' })
   @ApiBearerAuth('JWT')
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -40,6 +41,7 @@ export class EpisodeController {
     );
   }
 
+  @ApiOperation({ summary: 'Create an episode' })
   @ApiBearerAuth('JWT')
   @Post()
   @UseGuards(JwtAuthGuard, CreatorGuard)
@@ -52,6 +54,7 @@ export class EpisodeController {
     return await this.episodeService.createEpisode(dto);
   }
 
+  @ApiOperation({ summary: 'Update episode' })
   @ApiBearerAuth('JWT')
   @Patch(':id')
   @UseGuards(JwtAuthGuard, CreatorGuard)

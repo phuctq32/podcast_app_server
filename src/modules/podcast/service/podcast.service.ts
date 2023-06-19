@@ -44,7 +44,7 @@ export class PodcastService {
 
     await newPodcast.populate('author category');
 
-    return { newPodcast };
+    return newPodcast;
   }
 
   async updatePodcast(
@@ -87,7 +87,7 @@ export class PodcastService {
     await podcast.populate('episodes'); // Get episodes of podcast
     await podcast.calcViews();
 
-    return { podcast };
+    return podcast;
   }
 
   async getPodcastById(podcastId: string, userId: string) {
@@ -107,6 +107,6 @@ export class PodcastService {
       (podcast.episodes[i] as EpisodeDocument).podcast = undefined;
     }
 
-    return { podcast };
+    return podcast;
   }
 }

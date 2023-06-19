@@ -49,6 +49,9 @@ export default function MongooseClassSerializeInterceptor(
     ) {
       this.logger.log(`Transforming response...`);
       this.logger.debug(classToIntercept.name);
+      if (response === null) {
+        return null;
+      }
       return super.serialize(this.prepareResponse(response), options);
     }
   };

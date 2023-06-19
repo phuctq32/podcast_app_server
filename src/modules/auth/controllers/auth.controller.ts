@@ -18,7 +18,7 @@ import {
   ForgotPasswordVerificationDto,
   ResetPasswordDto,
 } from '../dto/reset-password.dto';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserLoginDto } from '../dto/user-login.dto';
 import { GoogleOauthGuard } from '../guards/google-oauth.guard';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
@@ -30,6 +30,10 @@ import { User } from '../../../entities/user.entity';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({
+    summary: 'Register a new user',
+    description: 'Email must not be exist in app',
+  })
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   @ResponseMessage('Register successfully')
@@ -39,6 +43,7 @@ export class AuthController {
     return null;
   }
 
+  @ApiOperation({ summary: 'Login' })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Login successfully')
@@ -47,9 +52,7 @@ export class AuthController {
     return await this.authService.login(loginDto);
   }
 
-  @ApiBody({
-    type: ForgotPasswordVerificationDto,
-  })
+  @ApiOperation({ summary: 'Verify user' })
   @Post('verification')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Verify successfully')
@@ -59,6 +62,10 @@ export class AuthController {
     return null;
   }
 
+  @ApiOperation({
+    summary: 'Forgot password',
+    description: 'Using to reset password by email',
+  })
   @ApiBody({
     schema: {
       properties: {
@@ -75,6 +82,10 @@ export class AuthController {
     return null;
   }
 
+  @ApiOperation({
+    summary: 'Verify reset code',
+    description: 'Using to check the reset code sent to mail',
+  })
   @Post('forgot-password/verification')
   @HttpCode(HttpStatus.OK)
   async verifyResetPasswordCode(
@@ -87,6 +98,11 @@ export class AuthController {
     return { reset_token: resetToken };
   }
 
+  @ApiOperation({
+    summary: 'Reset password',
+    description:
+      'Reset password with the token supplied from verifying reset code',
+  })
   @Patch('reset-password/:token')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Reset password successfully')
@@ -114,6 +130,7 @@ export class AuthController {
   }
 
   // Login by access token from google oauth
+  @ApiOperation({ summary: 'Login with google access token' })
   @Post('login/google')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Login with google successfully')

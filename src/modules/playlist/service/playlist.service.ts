@@ -72,9 +72,11 @@ export class PlaylistService {
       throw new NotFoundException('User not found');
     }
 
-    const playlists: PlaylistDocument[] = await this.playlistModel.find({
-      user: user._id,
-    });
+    const playlists: PlaylistDocument[] = await this.playlistModel
+      .find({
+        user: user._id,
+      })
+      .select('-episodes');
 
     return playlists;
   }

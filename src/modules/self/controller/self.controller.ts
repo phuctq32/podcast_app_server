@@ -189,7 +189,7 @@ export class SelfController {
   @ApiOperation({
     summary: 'Add an episode to favorite list',
     description:
-      'An episode can only add 1 times. If the episode existed in favorite list, can not add',
+      'An episode can only add 1 times</br>If the episode existed in favorite list, can not add',
   })
   @ApiBearerAuth('JWT')
   @Post('favorite-episodes/:id')

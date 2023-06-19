@@ -14,7 +14,7 @@ import {
 } from '../../../configs/multer.config';
 import { Express } from 'express';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MediaService } from '../service/media.service';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { CreatorGuard } from '../../../common/guards/creator.guard';
@@ -24,6 +24,11 @@ import { CreatorGuard } from '../../../common/guards/creator.guard';
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
+  @ApiOperation({
+    summary: 'Upload audio',
+    description:
+      'Only use for a creator (user who created channel).</br> Only accept type: <b>.mp3</b>, <b>.aac</b>',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -46,6 +51,10 @@ export class MediaController {
     return await this.mediaService.uploadAudio(file);
   }
 
+  @ApiOperation({
+    summary: 'Upload image',
+    description: 'Only accept type: <b>.jpg</b>, <b>.jpeg</b>, <b>.png</b>',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

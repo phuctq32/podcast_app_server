@@ -29,7 +29,7 @@ export class ResponseFormatInterceptor<T>
         this.logger.log('Formatting response....');
         return {
           message: msg,
-          data,
+          data: data,
         };
       }),
     );

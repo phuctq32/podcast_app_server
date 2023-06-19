@@ -10,7 +10,6 @@ import { Model } from 'mongoose';
 import { User } from '../../../entities/user.entity';
 import { Episode } from '../../../entities/episode.entity';
 import { CreatePlaylistDto } from '../../user/dto/create-playlist.dto';
-import { AddEpisodeDto } from '../dto/add-episode.dto';
 
 @Injectable()
 export class PlaylistService {
@@ -43,7 +42,26 @@ export class PlaylistService {
       user: user._id,
     });
 
-    return { playlist: newPlaylist };
+    return newPlaylist;
+  }
+
+  async updatePlaylist(dto: CreatePlaylistDto) {
+    this.logger.log(`In func ${this.updatePlaylist.name}`);
+
+    const user = await this.userModel.findOne({ _id: dto.userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const existingPlaylist = await this.playlistModel.findOne({
+      name: dto.name,
+      user: user._id,
+    });
+    if (existingPlaylist) {
+      throw new BadRequestException('Playlist name already exists');
+    }
+
+    return existingPlaylist;
   }
 
   async listPlaylists(userId: string) {
@@ -57,9 +75,8 @@ export class PlaylistService {
     const playlists: PlaylistDocument[] = await this.playlistModel.find({
       user: user._id,
     });
-    console.log(playlists[0]._id.toString());
 
-    return { playlists };
+    return playlists;
   }
 
   async getPlaylistById(userId: string, playlistId: string) {
@@ -81,23 +98,27 @@ export class PlaylistService {
 
     await playlist.populate('episodes');
 
-    return { playlist };
+    return playlist;
   }
 
-  async addEpisodeToPlaylist(dto: AddEpisodeDto) {
+  async addEpisodeToPlaylist(
+    episodeId: string,
+    playlistId: string,
+    userId: string,
+  ) {
     this.logger.log(`In func ${this.addEpisodeToPlaylist.name}`);
 
-    const user = await this.userModel.findOne({ _id: dto.user_id });
+    const user = await this.userModel.findOne({ _id: userId });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const playlist = await this.playlistModel.findOne({ _id: dto.playlist_id });
+    const playlist = await this.playlistModel.findOne({ _id: playlistId });
     if (playlist.user.toString() !== user._id.toString()) {
       throw new BadRequestException('User is not playlist author');
     }
 
-    const episode = await this.episodeModel.findOne({ _id: dto.episode_id });
+    const episode = await this.episodeModel.findOne({ _id: episodeId });
     if (!episode) {
       throw new NotFoundException('Episode not found');
     }
@@ -110,23 +131,50 @@ export class PlaylistService {
     await playlist.save();
     await playlist.populate('episodes');
 
-    return { playlist };
+    return playlist;
   }
 
-  async removeEpisodeFromPlaylist(dto: AddEpisodeDto) {
-    this.logger.log(`In func ${this.removeEpisodeFromPlaylist.name}`);
+  async removeAllEpisodeFromPlaylist(userId: string, playlistId: string) {
+    this.logger.log(`In func ${this.removeAllEpisodeFromPlaylist.name}`);
 
-    const user = await this.userModel.findOne({ _id: dto.user_id });
+    const user = await this.userModel.findOne({ _id: userId });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const playlist = await this.playlistModel.findOne({ _id: dto.playlist_id });
+    const playlist = await this.playlistModel.findOne({ _id: playlistId });
+    if (!playlist) {
+      throw new NotFoundException('Playlist not found');
+    }
+
     if (playlist.user.toString() !== user._id.toString()) {
       throw new BadRequestException('User is not playlist author');
     }
 
-    const episode = await this.episodeModel.findOne({ _id: dto.episode_id });
+    playlist.episodes = [];
+    await playlist.save();
+
+    return [];
+  }
+
+  async removeEpisodeFromPlaylist(
+    episodeId: string,
+    playlistId: string,
+    userId: string,
+  ) {
+    this.logger.log(`In func ${this.removeEpisodeFromPlaylist.name}`);
+
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const playlist = await this.playlistModel.findOne({ _id: playlistId });
+    if (playlist.user.toString() !== user._id.toString()) {
+      throw new BadRequestException('User is not playlist author');
+    }
+
+    const episode = await this.episodeModel.findOne({ _id: episodeId });
     if (!episode) {
       throw new NotFoundException('Episode not found');
     }
@@ -141,7 +189,7 @@ export class PlaylistService {
     await playlist.save();
     await playlist.populate('episodes');
 
-    return { playlist };
+    return playlist;
   }
 
   async removePlaylist(userId: string, playlistId: string) {

@@ -71,7 +71,7 @@ export class UserService {
 
     await user.save();
 
-    return { user };
+    return user;
   }
 
   async createChannel(dto: CreateChannelDto) {
@@ -86,7 +86,7 @@ export class UserService {
     user.channel_name = dto.name;
     await user.save();
 
-    return { user };
+    return user;
   }
 
   async updateChannel(dto: CreateChannelDto) {
@@ -96,6 +96,6 @@ export class UserService {
     user.channel_name = dto.name;
     await user.save();
 
-    return { user };
+    return user;
   }
 }

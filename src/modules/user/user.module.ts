@@ -13,6 +13,6 @@ import { MongooseModule } from '@nestjs/mongoose';
   ],
   controllers: [UserController],
   providers: [UserService, HashService],
-  exports: [MongooseModule],
+  exports: [MongooseModule, UserService],
 })
 export class UserModule {}

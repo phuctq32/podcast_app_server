@@ -105,7 +105,7 @@ export class EpisodeService {
       throw new NotFoundException('User not found');
     }
     await user.populate('listened_episodes');
-    return { listened_episodes: user.listened_episodes };
+    return user.listened_episodes;
   }
 
   async listen(episodeId: string, userId: string) {
@@ -130,6 +130,14 @@ export class EpisodeService {
     return { episode };
   }
 
+  async removeFromListened(episodeId: string, userId: string) {
+    return this.removeEpisodeFromList('listened', episodeId, userId);
+  }
+
+  async removeAllFromListened(userId: string) {
+    return this.removeAllFromList('listened', userId);
+  }
+
   // Favorite
   async getFavorite(userId: string) {
     const user = await this.userModel
@@ -143,7 +151,7 @@ export class EpisodeService {
       await (ep as EpisodeDocument).checkListened(userId);
     }
 
-    return { favorite_episodes: user.favorite_episodes };
+    return user.favorite_episodes;
   }
 
   async addToFavorite(episodeId: string, userId: string) {
@@ -169,10 +177,34 @@ export class EpisodeService {
       await (ep as EpisodeDocument).checkListened(userId);
     }
 
-    return { favorite_episodes: user.favorite_episodes };
+    return user.favorite_episodes;
   }
 
   async removeFromFavorite(episodeId: string, userId: string) {
+    return this.removeEpisodeFromList('favorite', episodeId, userId);
+  }
+
+  async removeAllFromFavorite(userId: string) {
+    return this.removeAllFromList('favorite', userId);
+  }
+
+  private async removeAllFromList(listName: string, userId: string) {
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user[`${listName}_episode`] = [];
+    await user.save();
+
+    return [];
+  }
+
+  private async removeEpisodeFromList(
+    listName: string,
+    episodeId: string,
+    userId: string,
+  ) {
     const user = await this.userModel.findOne({ _id: userId });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -184,19 +216,19 @@ export class EpisodeService {
     }
 
     if (!user.favorite_episodes.includes(episode._id)) {
-      throw new BadRequestException('Episode not exist in favorite list');
+      throw new BadRequestException(`Episode not exist in ${listName} list`);
     }
 
     user.favorite_episodes = user.favorite_episodes.filter(
       (ep) => ep.toString() !== episode._id.toString(),
     );
     await user.save();
-    await user.populate('favorite_episodes');
+    await user.populate(`${listName}_episodes`);
 
-    for (const ep of user.favorite_episodes) {
+    for (const ep of user[`${listName}_episodes`]) {
       await (ep as EpisodeDocument).checkListened(userId);
     }
 
-    return { favorite_episodes: user.favorite_episodes };
+    return user[`${listName}_episodes`];
   }
 }

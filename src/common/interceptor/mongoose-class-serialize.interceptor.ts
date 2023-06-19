@@ -30,19 +30,17 @@ export default function MongooseClassSerializeInterceptor(
       return obj;
     }
 
-    private prepareResponse(response: object) {
-      Object.keys(response).forEach((key) => {
-        if (Array.isArray(response[key])) {
-          response[key] = {
-            items: this.changePlainObjectToClass(response[key]),
-            count: response[key].length,
-          };
-        } else {
-          response[key] = this.changePlainObjectToClass(response[key]);
-        }
-      });
+    private prepareResponse(
+      response: PlainLiteralObject | PlainLiteralObject[],
+    ) {
+      if (Array.isArray(response)) {
+        return {
+          items: this.changePlainObjectToClass(response),
+          count: response.length,
+        };
+      }
 
-      return response;
+      return this.changePlainObjectToClass(response);
     }
 
     serialize(

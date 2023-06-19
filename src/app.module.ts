@@ -19,6 +19,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { MediaModule } from './modules/media/media.module';
 import cloudinaryConfig from './configs/cloudinary.config';
 import { PlaylistModule } from './modules/playlist/playlist.module';
+import { SelfModule } from './modules/self/self.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { PlaylistModule } from './modules/playlist/playlist.module';
       inject: [ConfigService],
     }),
     AuthModule,
+    SelfModule,
     UserModule,
     PodcastModule,
     EpisodeModule,

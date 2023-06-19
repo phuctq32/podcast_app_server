@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { EpisodeService } from '../service/episode.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateEpisodeDto } from '../dto/create-episode.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
@@ -65,56 +65,6 @@ export class EpisodeController {
       episodeId,
       requester.userId,
       dto,
-    );
-  }
-
-  @ApiOperation({ description: 'Get history listened episodes' })
-  @ApiBearerAuth('JWT')
-  @Get('/self/listened')
-  @UseGuards(JwtAuthGuard)
-  async getListenedEpisodes(@Requester() requester: JwtPayload) {
-    return await this.episodeService.getListenedEpisodes(requester.userId);
-  }
-
-  @ApiBearerAuth('JWT')
-  @Patch(':id/listen')
-  @UseGuards(JwtAuthGuard)
-  @ResponseMessage('Increased listening frequency')
-  async listenEpisode(
-    @Requester() requester: JwtPayload,
-    @Param('id', MongoIdValidationPipe) episodeId: string,
-  ) {
-    return await this.episodeService.listen(episodeId, requester.userId);
-  }
-
-  // favorite
-  @ApiBearerAuth('JWT')
-  @Get('favorite')
-  @UseGuards(JwtAuthGuard)
-  async getFavoriteList(@Requester() requester: JwtPayload) {
-    return await this.episodeService.getFavorite(requester.userId);
-  }
-
-  @ApiBearerAuth('JWT')
-  @Patch(':id/favorite/add')
-  @UseGuards(JwtAuthGuard)
-  async addEpisodeToFavoriteList(
-    @Requester() requester: JwtPayload,
-    @Param('id', MongoIdValidationPipe) episodeId: string,
-  ) {
-    return await this.episodeService.addToFavorite(episodeId, requester.userId);
-  }
-
-  @ApiBearerAuth('JWT')
-  @Patch(':id/favorite/remove')
-  @UseGuards(JwtAuthGuard)
-  async removeEpisodeFromFavoriteList(
-    @Requester() requester: JwtPayload,
-    @Param('id', MongoIdValidationPipe) episodeId: string,
-  ) {
-    return await this.episodeService.removeFromFavorite(
-      episodeId,
-      requester.userId,
     );
   }
 }

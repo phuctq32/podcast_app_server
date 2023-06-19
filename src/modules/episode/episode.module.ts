@@ -22,6 +22,6 @@ import { User } from '../../entities/user.entity';
   ],
   controllers: [EpisodeController],
   providers: [EpisodeService],
-  exports: [MongooseModule],
+  exports: [MongooseModule, EpisodeService],
 })
 export class EpisodeModule {}

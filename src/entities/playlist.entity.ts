@@ -20,10 +20,17 @@ export class Playlist extends BaseEntity {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   @Exclude()
   user: Types.ObjectId;
+
+  calcNumEpisodes: () => void;
 }
 
 export const PlaylistSchema = SchemaFactory.createForClass(Playlist);
 
 export const PlaylistSchemaFactory = async () => {
+  const playlistSchema = PlaylistSchema;
+  playlistSchema.methods.calcNumEpisodes = function () {
+    this._doc.num_episodes = this.episodes.length;
+    delete this._doc.episodes;
+  };
   return PlaylistSchema;
 };

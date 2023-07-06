@@ -79,14 +79,17 @@ export class PlaylistController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  @ResponseMessage('Created playlist successfully')
+  @ResponseMessage('Updated playlist successfully')
   async updatePlaylist(
     @Requester() requester: JwtPayload,
     @Param('id', MongoIdValidationPipe) playlistId: string,
     @Body() dto: CreatePlaylistDto,
   ) {
-    dto.userId = requester.userId;
-    return await this.playlistService.updatePlaylist(dto);
+    return await this.playlistService.updatePlaylist(
+      playlistId,
+      requester.userId,
+      dto,
+    );
   }
 
   @ApiOperation({ summary: 'Remove playlist' })

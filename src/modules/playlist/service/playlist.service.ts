@@ -45,21 +45,29 @@ export class PlaylistService {
     return newPlaylist;
   }
 
-  async updatePlaylist(dto: CreatePlaylistDto) {
+  async updatePlaylist(
+    playlistId: string,
+    userId: string,
+    dto: CreatePlaylistDto,
+  ) {
     this.logger.log(`In func ${this.updatePlaylist.name}`);
 
-    const user = await this.userModel.findOne({ _id: dto.userId });
+    const user = await this.userModel.findOne({ _id: userId });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     const existingPlaylist = await this.playlistModel.findOne({
-      name: dto.name,
-      user: user._id,
+      _id: playlistId,
     });
-    if (existingPlaylist) {
-      throw new BadRequestException('Playlist name already exists');
+    if (!existingPlaylist) {
+      throw new NotFoundException('Playlist not found');
     }
+    if (user._id.toString() !== existingPlaylist.user.toString()) {
+      throw new BadRequestException('User is not playlist owner');
+    }
+    existingPlaylist.name = dto.name;
+    await existingPlaylist.save();
 
     return existingPlaylist;
   }

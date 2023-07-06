@@ -33,14 +33,25 @@ export default function MongooseClassSerializeInterceptor(
     private prepareResponse(
       response: PlainLiteralObject | PlainLiteralObject[],
     ) {
-      if (Array.isArray(response)) {
-        return {
-          items: this.changePlainObjectToClass(response),
-          count: response.length,
-        };
-      }
+      if (response['data']) {
+        const data = response['data'];
+        if (Array.isArray(data)) {
+          return {
+            items: this.changePlainObjectToClass(data),
+            count: data.length,
+            ...response['pagination'],
+          };
+        }
+      } else {
+        if (Array.isArray(response)) {
+          return {
+            items: this.changePlainObjectToClass(response),
+            count: response.length,
+          };
+        }
 
-      return this.changePlainObjectToClass(response);
+        return this.changePlainObjectToClass(response);
+      }
     }
 
     serialize(

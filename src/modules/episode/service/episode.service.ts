@@ -11,6 +11,9 @@ import { CreateEpisodeDto } from '../dto/create-episode.dto';
 import { Podcast } from '../../../entities/podcast.entity';
 import { UpdateEpisodeDto } from '../dto/update-episode.dto';
 import { User } from '../../../entities/user.entity';
+import { PaginationDto } from '../../../common/pagination/pagination.dto';
+import { RemoveAccentsService } from '../../../common/remove-accents.service';
+import { PaginationService } from '../../../common/pagination/pagination.service';
 
 @Injectable()
 export class EpisodeService {
@@ -19,6 +22,8 @@ export class EpisodeService {
     @InjectModel(Episode.name) private readonly episodeModel: Model<Episode>,
     @InjectModel(Podcast.name) private readonly podcastModel: Model<Podcast>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    private readonly paginationService: PaginationService,
+    private readonly removeAccentsService: RemoveAccentsService,
   ) {}
 
   async getEpisodeById(episodeId: string, userId: string) {
@@ -230,5 +235,60 @@ export class EpisodeService {
     }
 
     return user[`${listName}_episodes`];
+  }
+
+  async searchEpisodes(searchTerm: string, paginationDto: PaginationDto) {
+    const searchStr =
+      this.removeAccentsService.removeVietnameseAccents(searchTerm);
+    if (!paginationDto) {
+      const episodes = await this.episodeModel
+        .find(
+          {
+            $text: {
+              $search: searchStr,
+              $caseSensitive: false,
+              $diacriticSensitive: false,
+            },
+          },
+          { score: { $meta: 'textScore' } },
+        )
+        .sort({ score: { $meta: 'textScore' } })
+        .populate('podcast')
+        .populate('podcast.author podcast.category');
+      return episodes;
+    }
+
+    const episodes = await this.episodeModel
+      .find(
+        {
+          $text: {
+            $search: searchStr,
+            $caseSensitive: false,
+            $diacriticSensitive: false,
+          },
+        },
+        { score: { $meta: 'textScore' } },
+      )
+      .sort({ score: { $meta: 'textScore' } })
+      .skip((paginationDto.offset - 1) * paginationDto.limit)
+      .limit(paginationDto.limit)
+      .populate('podcast')
+      .populate('podcast.author podcast.category');
+
+    const episodesTotalCount = await this.episodeModel.countDocuments({
+      $text: {
+        $search: this.removeAccentsService.removeVietnameseAccents(searchTerm),
+        $caseSensitive: false,
+        $diacriticSensitive: false,
+      },
+    });
+
+    return {
+      data: episodes,
+      pagination: this.paginationService.getInformation(
+        paginationDto,
+        episodesTotalCount,
+      ),
+    };
   }
 }

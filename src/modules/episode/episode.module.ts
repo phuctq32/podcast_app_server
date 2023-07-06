@@ -6,6 +6,8 @@ import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { PodcastModule } from '../podcast/podcast.module';
 import { UserModule } from '../user/user.module';
 import { User } from '../../entities/user.entity';
+import { PaginationService } from '../../common/pagination/pagination.service';
+import { RemoveAccentsService } from '../../common/remove-accents.service';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { User } from '../../entities/user.entity';
     UserModule,
   ],
   controllers: [EpisodeController],
-  providers: [EpisodeService],
+  providers: [EpisodeService, PaginationService, RemoveAccentsService],
   exports: [MongooseModule, EpisodeService],
 })
 export class EpisodeModule {}

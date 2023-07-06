@@ -5,7 +5,6 @@ import {
   IsOptional,
   IsString,
   IsUrl,
-  Min,
 } from 'class-validator';
 
 export class CreateEpisodeDto {
@@ -21,7 +20,6 @@ export class CreateEpisodeDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @Min(1000)
   duration: number;
 
   @ApiProperty()

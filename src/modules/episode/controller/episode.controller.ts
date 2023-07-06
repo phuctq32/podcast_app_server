@@ -2,9 +2,12 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -20,6 +23,10 @@ import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 import { MongoIdValidationPipe } from '../../../common/validation/mongoid-validation.pipe';
 import { UpdateEpisodeDto } from '../dto/update-episode.dto';
+import {
+  PaginationDto,
+  PaginationParams,
+} from '../../../common/pagination/pagination.dto';
 
 @ApiTags('Episode')
 @Controller('episodes')
@@ -68,6 +75,22 @@ export class EpisodeController {
       episodeId,
       requester.userId,
       dto,
+    );
+  }
+
+  @ApiOperation({ summary: 'Search episodes' })
+  @ApiBearerAuth('JWT')
+  @Post('/search')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async searchEpisodes(
+    @Query('q') searchTerm: string,
+    @Query() paginationData: PaginationParams,
+  ) {
+    const paginationDto = new PaginationDto(paginationData);
+    return await this.episodeService.searchEpisodes(
+      searchTerm,
+      paginationDto.getData(),
     );
   }
 }

@@ -8,6 +8,8 @@ import { EpisodeModule } from '../episode/episode.module';
 import { CategoryModule } from '../category/category.module';
 import { Episode } from '../../entities/episode.entity';
 import { User } from '../../entities/user.entity';
+import { RemoveAccentsService } from '../../common/remove-accents.service';
+import { PaginationService } from '../../common/pagination/pagination.service';
 
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { User } from '../../entities/user.entity';
     CategoryModule,
   ],
   controllers: [PodcastController],
-  providers: [PodcastService],
+  providers: [PodcastService, RemoveAccentsService, PaginationService],
   exports: [MongooseModule],
 })
 export class PodcastModule {}

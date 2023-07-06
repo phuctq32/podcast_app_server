@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -23,6 +24,10 @@ import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 import { MongoIdValidationPipe } from '../../../common/validation/mongoid-validation.pipe';
 import { UpdatePodcastDto } from '../dto/update-podcast.dto';
+import {
+  PaginationDto,
+  PaginationParams,
+} from '../../../common/pagination/pagination.dto';
 
 @ApiTags('Podcast')
 @Controller('podcasts')
@@ -74,6 +79,22 @@ export class PodcastController {
       podcastId,
       requester.userId,
       dto,
+    );
+  }
+
+  @ApiOperation({ summary: 'Search podcasts' })
+  @ApiBearerAuth('JWT')
+  @Post('/search')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async searchPodcasts(
+    @Query('q') searchTerm: string,
+    @Query() paginationData: PaginationParams,
+  ) {
+    const paginationDto = new PaginationDto(paginationData);
+    return await this.podcastService.searchPodcasts(
+      searchTerm,
+      paginationDto.getData(),
     );
   }
 }

@@ -98,4 +98,15 @@ export class UserService {
 
     return user;
   }
+
+  async getSearchHistory(userId: string) {
+    this.logger.log(`In func ${this.getSearchHistory.name}`);
+    const user = await this.getUserById(userId);
+
+    return user.search_history;
+  }
+
+  async removeAnItemFromSearchHistory(userId: string, searchStr: string) {
+    this.logger.log(`In func ${this.removeAnItemFromSearchHistory.name}`);
+  }
 }

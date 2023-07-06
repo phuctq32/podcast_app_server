@@ -10,11 +10,14 @@ import {
   Post,
   UseGuards,
   UseInterceptors,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from '../../user/services/user.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { Requester } from '../../../common/decorators/requester.decorator';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
@@ -126,8 +129,9 @@ export class SelfController {
   }
 
   @ApiOperation({
-    summary: 'Increase listen frequency of episodes',
-    description: 'A user can listen multiple time',
+    summary: 'Add episode to history',
+    description:
+      'Increase listen frequency of episodes. A user can listen multiple time',
   })
   @ApiBearerAuth('JWT')
   @Post('/listened-episodes/:id')
@@ -143,7 +147,7 @@ export class SelfController {
   }
 
   @ApiOperation({
-    summary: 'Remove all episode from listened list',
+    summary: 'Remove all episode from history',
   })
   @ApiBearerAuth('JWT')
   @Delete('listened-episodes')
@@ -156,7 +160,7 @@ export class SelfController {
   }
 
   @ApiOperation({
-    summary: 'Remove one episode from listened list',
+    summary: 'Remove one episode from history',
     description: 'If the episode not exist in listened list, can not remove',
   })
   @ApiBearerAuth('JWT')
@@ -223,7 +227,6 @@ export class SelfController {
   })
   @ApiBearerAuth('JWT')
   @Delete('favorite-episodes/:id')
-  @UsePipes(new ValidationPipe({ transform: true }))
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(MongooseClassSerializeInterceptor(Episode))
   @HttpCode(HttpStatus.OK)
@@ -236,5 +239,28 @@ export class SelfController {
       episodeId,
       requester.userId,
     );
+  }
+
+  // Search history
+  @ApiOperation({ summary: 'Get search history' })
+  @ApiBearerAuth('JWT')
+  @ApiResponse({ type: User })
+  @Get('search-history')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getSearchHistory(@Requester() requester: JwtPayload) {
+    return await this.userService.getSearchHistory(requester.userId);
+  }
+
+  @ApiOperation({ summary: 'Remove a item in search history' })
+  @ApiBearerAuth('JWT')
+  @Delete('search-history/:searchStr')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async addToSearchHistory(
+    @Requester() requester: JwtPayload,
+    @Param('searchStr') searchStr: string,
+  ) {
+    return await this.userService;
   }
 }

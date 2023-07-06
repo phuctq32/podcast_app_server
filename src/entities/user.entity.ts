@@ -42,6 +42,7 @@ export class User extends BaseEntity {
   is_verified: boolean;
 
   @Prop({ type: [String] })
+  @Exclude()
   search_history: string[];
 
   /**

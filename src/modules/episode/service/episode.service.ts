@@ -33,7 +33,7 @@ export class EpisodeService {
     await episode.populate('podcast');
     await episode.populate('podcast.author podcast.category');
 
-    return { episode };
+    return episode;
   }
 
   async createEpisode(dto: CreateEpisodeDto) {
@@ -62,7 +62,7 @@ export class EpisodeService {
     await newEpisode.populate('podcast.category');
     await newEpisode.populate('podcast.author');
 
-    return { newEpisode };
+    return newEpisode;
   }
 
   async updateEpisode(
@@ -95,7 +95,7 @@ export class EpisodeService {
     });
 
     await episode.save();
-    return { episode };
+    return episode;
   }
 
   // listen
@@ -127,7 +127,7 @@ export class EpisodeService {
     await episode.save();
     await episode.checkListened(userId);
 
-    return { episode };
+    return episode;
   }
 
   async removeFromListened(episodeId: string, userId: string) {

@@ -11,6 +11,8 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { HashService } from '../../../utils/hash/hash.service';
 import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 import { CreateChannelDto } from '../dto/create-channel.dto';
+import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -18,6 +20,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly hashService: HashService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async getUserById(id: string) {
@@ -86,7 +89,15 @@ export class UserService {
     user.channel_name = dto.name;
     await user.save();
 
-    return user;
+    const payload: JwtPayload = {
+      userId: user._id.toString(),
+      email: user.email,
+      isCreator: user.is_creator,
+    };
+
+    const token = this.jwtService.sign(payload);
+
+    return { user, token };
   }
 
   async updateChannel(dto: CreateChannelDto) {

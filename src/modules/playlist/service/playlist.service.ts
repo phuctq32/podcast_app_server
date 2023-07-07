@@ -107,7 +107,15 @@ export class PlaylistService {
       throw new BadRequestException('User is not playlist author');
     }
 
-    await playlist.populate('episodes');
+    await playlist.populate({
+      path: 'episodes',
+      populate: {
+        path: 'podcast',
+        populate: {
+          path: 'author category',
+        },
+      },
+    });
 
     return playlist;
   }
@@ -140,7 +148,15 @@ export class PlaylistService {
 
     playlist.episodes.push(episode._id);
     await playlist.save();
-    await playlist.populate('episodes');
+    await playlist.populate({
+      path: 'episodes',
+      populate: {
+        path: 'podcast',
+        populate: {
+          path: 'author category',
+        },
+      },
+    });
 
     return playlist;
   }
@@ -165,7 +181,7 @@ export class PlaylistService {
     playlist.episodes = [];
     await playlist.save();
 
-    return [];
+    return playlist;
   }
 
   async removeEpisodeFromPlaylist(
@@ -198,7 +214,15 @@ export class PlaylistService {
       (ep) => ep.toString() !== episode._id.toString(),
     );
     await playlist.save();
-    await playlist.populate('episodes');
+    await playlist.populate({
+      path: 'episodes',
+      populate: {
+        path: 'podcast',
+        populate: {
+          path: 'author category',
+        },
+      },
+    });
 
     return playlist;
   }

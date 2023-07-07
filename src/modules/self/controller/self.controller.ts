@@ -275,4 +275,17 @@ export class SelfController {
   ) {
     return await this.userService;
   }
+
+  @ApiOperation({ summary: 'Get current user channel info' })
+  @ApiBearerAuth('JWT')
+  @Get('channel')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(MongooseClassSerializeInterceptor(User))
+  @HttpCode(HttpStatus.OK)
+  async getPodcastsByChannelId(@Requester() requester: JwtPayload) {
+    return await this.userService.getChannel(
+      requester.userId,
+      requester.userId,
+    );
+  }
 }

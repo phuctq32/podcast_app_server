@@ -182,9 +182,13 @@ export class EpisodeService {
 
   // Favorite
   async getFavorite(userId: string) {
-    const user = await this.userModel
-      .findOne({ _id: userId })
-      .populate('favorite_episodes');
+    const user = await this.userModel.findOne({ _id: userId }).populate({
+      path: 'favorite_episodes',
+      populate: {
+        path: 'podcast',
+        populate: 'author category',
+      },
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -193,7 +197,7 @@ export class EpisodeService {
       await (ep as EpisodeDocument).checkListened(userId);
     }
 
-    return user.favorite_episodes;
+    return user.favorite_episodes.reverse();
   }
 
   async addToFavorite(episodeId: string, userId: string) {

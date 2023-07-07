@@ -28,6 +28,44 @@ export class EpisodeService {
     private readonly removeAccentsService: RemoveAccentsService,
   ) {}
 
+  async getNewestEpisodes(userId: string) {
+    this.logger.log(`In func ${this.getNewestEpisodes.name}`);
+
+    const newestEpisodes = await this.episodeModel
+      .find({ status: Status.ACTIVE })
+      .sort({ created_at: -1 })
+      .skip(0)
+      .limit(10)
+      .populate({
+        path: 'podcast',
+        populate: { path: 'author category' },
+      });
+
+    for (let i = 0; i < newestEpisodes.length; i++) {
+      await newestEpisodes[i].checkListened(userId);
+    }
+
+    return newestEpisodes;
+  }
+
+  async getMostListenedEpisodes(userId: string) {
+    const mostListenedEpisodes = await this.episodeModel
+      .find({ status: Status.ACTIVE })
+      .sort({ num_listening: -1 })
+      .skip(0)
+      .limit(10)
+      .populate({
+        path: 'podcast',
+        populate: { path: 'author category' },
+      });
+
+    for (let i = 0; i < mostListenedEpisodes.length; i++) {
+      await mostListenedEpisodes[i].checkListened(userId);
+    }
+
+    return mostListenedEpisodes;
+  }
+
   async getEpisodeById(episodeId: string, userId: string) {
     this.logger.log(`In func ${this.getEpisodeById.name}`);
 

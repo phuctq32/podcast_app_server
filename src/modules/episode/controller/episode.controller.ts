@@ -35,10 +35,29 @@ import {
 export class EpisodeController {
   constructor(private readonly episodeService: EpisodeService) {}
 
+  @ApiOperation({ summary: 'Get 10 newest episodes' })
+  @ApiBearerAuth('JWT')
+  @Get('newest')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getNewestEpisodes(@Requester() requester: JwtPayload) {
+    return await this.episodeService.getNewestEpisodes(requester.userId);
+  }
+
+  @ApiOperation({ summary: 'Get 10 most listened episodes' })
+  @ApiBearerAuth('JWT')
+  @Get('most-listened')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getMostListenedEpisodes(@Requester() requester: JwtPayload) {
+    return await this.episodeService.getMostListenedEpisodes(requester.userId);
+  }
+
   @ApiOperation({ summary: 'Create an episode' })
   @ApiBearerAuth('JWT')
   @Post()
   @UseGuards(JwtAuthGuard, CreatorGuard)
+  @HttpCode(HttpStatus.CREATED)
   @ResponseMessage('Create episode successfully')
   async createEpisode(
     @Requester() requester: JwtPayload,

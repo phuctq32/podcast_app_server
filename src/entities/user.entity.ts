@@ -5,6 +5,7 @@ import { BaseEntity } from './base.entity';
 import { EpisodePopulatedDoc } from './episode.entity';
 import { Podcast, PodcastPopulatedDoc } from './podcast.entity';
 import { ArrayClassTransform } from '../common/decorators/transform.decorator';
+import { DEFAULT_AVATAR_URL } from '../common/constants';
 
 export type UserDocument = HydratedDocument<User>;
 export type UserPopulatedDoc = PopulatedDoc<User>;
@@ -33,8 +34,7 @@ export class User extends BaseEntity {
   password: string;
 
   @Prop({
-    default:
-      'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png',
+    default: DEFAULT_AVATAR_URL,
   })
   avatar: string;
 

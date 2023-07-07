@@ -4,9 +4,9 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Podcast } from '../../../entities/podcast.entity';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { User } from '../../../entities/user.entity';
 import { CreatePodcastDto } from '../dto/create-podcast.dto';
 import { Episode, EpisodeDocument } from '../../../entities/episode.entity';
@@ -15,6 +15,7 @@ import { UpdatePodcastDto } from '../dto/update-podcast.dto';
 import { PaginationDto } from '../../../common/pagination/pagination.dto';
 import { RemoveAccentsService } from '../../../common/remove-accents.service';
 import { PaginationService } from '../../../common/pagination/pagination.service';
+import { Status } from '../../../common/constants';
 
 @Injectable()
 export class PodcastService {
@@ -24,6 +25,7 @@ export class PodcastService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(Episode.name) private readonly episodeModel: Model<Episode>,
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
+    @InjectConnection() private readonly connection: mongoose.Connection,
     private readonly removeAccentsService: RemoveAccentsService,
     private readonly paginationService: PaginationService,
   ) {}
@@ -271,5 +273,80 @@ export class PodcastService {
     }
 
     return user.subscribed_podcasts.reverse();
+  }
+
+  // delete
+  async deleteById(podcastId: string, userId: string) {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+    try {
+      const podcast = await this.podcastModel
+        .findOne({ _id: podcastId })
+        .session(session);
+      if (!podcast) {
+        throw new NotFoundException('Podcast not found');
+      }
+      const user = await this.userModel.findOne({ _id: userId });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (podcast.author.toString() !== user._id.toString()) {
+        throw new BadRequestException('User is not author');
+      }
+
+      const episodes = await this.episodeModel
+        .find({ podcast: podcast._id, status: Status.ACTIVE })
+        .session(session);
+      for (let i = 0; i < episodes.length; i++) {
+        episodes[i].status = Status.DELETED;
+        await episodes[i].save();
+      }
+      podcast.status = Status.DELETED;
+      await podcast.save();
+
+      await session.commitTransaction();
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      await session.endSession();
+    }
+
+    return null;
+  }
+
+  async deleteAllEpisodesByPodcastId(podcastId: string, userId: string) {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+    try {
+      const podcast = await this.podcastModel.findOne({ _id: podcastId });
+      if (!podcast) {
+        throw new NotFoundException('Podcast not found');
+      }
+      const user = await this.userModel.findOne({ _id: userId });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (podcast.author.toString() !== user._id.toString()) {
+        throw new BadRequestException('User is not author');
+      }
+
+      const episodes = await this.episodeModel
+        .find({ podcast: podcast._id, status: Status.ACTIVE })
+        .session(session);
+      for (let i = 0; i < episodes.length; i++) {
+        episodes[i].status = Status.DELETED;
+        await episodes[i].save();
+      }
+
+      await session.commitTransaction();
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      await session.endSession();
+    }
+
+    return null;
   }
 }

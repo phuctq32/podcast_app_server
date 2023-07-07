@@ -1,4 +1,4 @@
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import {
   BadRequestException,
   Injectable,
@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Episode, EpisodeDocument } from '../../../entities/episode.entity';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateEpisodeDto } from '../dto/create-episode.dto';
 import { Podcast } from '../../../entities/podcast.entity';
 import { UpdateEpisodeDto } from '../dto/update-episode.dto';
@@ -14,6 +14,7 @@ import { User } from '../../../entities/user.entity';
 import { PaginationDto } from '../../../common/pagination/pagination.dto';
 import { RemoveAccentsService } from '../../../common/remove-accents.service';
 import { PaginationService } from '../../../common/pagination/pagination.service';
+import { Status } from '../../../common/constants';
 
 @Injectable()
 export class EpisodeService {
@@ -22,6 +23,7 @@ export class EpisodeService {
     @InjectModel(Episode.name) private readonly episodeModel: Model<Episode>,
     @InjectModel(Podcast.name) private readonly podcastModel: Model<Podcast>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectConnection() private readonly connection: mongoose.Connection,
     private readonly paginationService: PaginationService,
     private readonly removeAccentsService: RemoveAccentsService,
   ) {}
@@ -335,5 +337,37 @@ export class EpisodeService {
         episodesTotalCount,
       ),
     };
+  }
+
+  async deleteById(episodeId: string, userId: string) {
+    const session = await this.connection.startSession();
+
+    session.startTransaction();
+    try {
+      const user = await this.userModel.findOne({ _id: userId });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const episode = await this.episodeModel
+        .findOne({ _id: episodeId })
+        .populate('podcast');
+      if (!episode) {
+        throw new NotFoundException('Episode not found');
+      }
+      if (episode.podcast.author.toString() !== user._id.toString()) {
+        throw new BadRequestException('User not episode author');
+      }
+      episode.status = Status.DELETED;
+      await episode.save();
+
+      await session.commitTransaction();
+    } catch (err) {
+      await session.abortTransaction();
+    } finally {
+      await session.endSession();
+    }
+
+    return null;
   }
 }

@@ -4,6 +4,7 @@ import { ClassTransform } from '../common/decorators/transform.decorator';
 import { BaseEntity } from './base.entity';
 import { Podcast, PodcastPopulatedDoc } from './podcast.entity';
 import { UserDocument } from './user.entity';
+import { Status } from '../common/constants';
 
 export type EpisodeDocument = HydratedDocument<Episode>;
 export type EpisodePopulatedDoc = PopulatedDoc<EpisodeDocument>;
@@ -32,6 +33,9 @@ export class Episode extends BaseEntity {
 
   @Prop({ default: 0 })
   num_listening: number;
+
+  @Prop({ type: Number, enum: Status, default: Status.ACTIVE })
+  status: Status;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,

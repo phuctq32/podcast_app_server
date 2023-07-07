@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -92,5 +93,18 @@ export class EpisodeController {
       searchTerm,
       paginationDto.getData(),
     );
+  }
+
+  @ApiOperation({ summary: 'Delete episode by id' })
+  @ApiBearerAuth('JWT')
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Deleted episode')
+  async deleteEpisodeById(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) episodeId: string,
+  ) {
+    return await this.episodeService.deleteById(episodeId, requester.userId);
   }
 }

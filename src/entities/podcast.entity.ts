@@ -8,6 +8,7 @@ import { User, UserPopulatedDoc } from './user.entity';
 import { BaseEntity } from './base.entity';
 import { Category, CategoryPopulatedDoc } from './category.entity';
 import { Episode, EpisodePopulatedDoc } from './episode.entity';
+import { Status } from '../common/constants';
 
 export type PodcastDocument = Podcast & HydratedDocument<any>;
 export type PodcastPopulatedDoc = PopulatedDoc<PodcastDocument>;
@@ -36,6 +37,9 @@ export class Podcast extends BaseEntity {
 
   @Prop()
   image: string;
+
+  @Prop({ type: Number, enum: Status, default: Status.ACTIVE })
+  status: Status;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -128,6 +129,36 @@ export class PodcastController {
     @Param('id', MongoIdValidationPipe) podcastId: string,
   ) {
     return await this.podcastService.unsubscribePodcast(
+      podcastId,
+      requester.userId,
+    );
+  }
+
+  // delete
+  @ApiOperation({ summary: 'Delete podcast by id' })
+  @ApiBearerAuth('JWT')
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Deleted podcast')
+  async deletePodcastById(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) podcastId: string,
+  ) {
+    return await this.podcastService.deleteById(podcastId, requester.userId);
+  }
+
+  @ApiOperation({ summary: 'Delete all episodes by podcast id' })
+  @ApiBearerAuth('JWT')
+  @Delete(':id/episodes')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Deleted all episode in podcast')
+  async deleteAll(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) podcastId: string,
+  ) {
+    return await this.podcastService.deleteAllEpisodesByPodcastId(
       podcastId,
       requester.userId,
     );

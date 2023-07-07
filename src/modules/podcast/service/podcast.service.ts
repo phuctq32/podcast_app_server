@@ -59,7 +59,10 @@ export class PodcastService {
     userId: string,
     dto: UpdatePodcastDto,
   ) {
-    const podcast = await this.podcastModel.findOne({ _id: podcastId });
+    const podcast = await this.podcastModel.findOne({
+      _id: podcastId,
+      status: Status.ACTIVE,
+    });
     if (!podcast) {
       throw new NotFoundException('Podcast not found');
     }
@@ -98,13 +101,21 @@ export class PodcastService {
   }
 
   async getPodcastById(podcastId: string, userId: string) {
-    const podcast = await this.podcastModel.findOne({ _id: podcastId });
+    const podcast = await this.podcastModel.findOne({
+      _id: podcastId,
+      status: Status.ACTIVE,
+    });
     if (!podcast) {
       throw new NotFoundException('Podcast not found');
     }
     await podcast.populate('author'); // Get author info;
     await podcast.populate('category'); // Get category info
-    await podcast.populate('episodes'); // Get episodes of podcast
+    await podcast.populate({
+      path: 'episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
+    }); // Get episodes of podcast
     await podcast.calcViews();
     await podcast.checkSubscription(userId);
 
@@ -145,6 +156,7 @@ export class PodcastService {
       const podcasts = await this.podcastModel
         .find(
           {
+            status: Status.ACTIVE,
             $text: {
               $search: searchStr,
               $caseSensitive: false,
@@ -164,6 +176,7 @@ export class PodcastService {
     const podcasts = await this.podcastModel
       .find(
         {
+          status: Status.ACTIVE,
           $text: {
             $search:
               this.removeAccentsService.removeVietnameseAccents(searchTerm),
@@ -178,6 +191,7 @@ export class PodcastService {
       .populate('author category');
 
     const podcastsTotalCount = await this.podcastModel.countDocuments({
+      status: Status.ACTIVE,
       $text: {
         $search: this.removeAccentsService.removeVietnameseAccents(searchTerm),
         $caseSensitive: false,
@@ -202,6 +216,7 @@ export class PodcastService {
     this.logger.log(`In func ${this.unsubscribePodcast.name}`);
     const podcast = await this.podcastModel.findOne({
       _id: podcastId,
+      status: Status.ACTIVE,
     });
     if (!podcast) {
       throw new NotFoundException('Podcast not found');
@@ -240,6 +255,7 @@ export class PodcastService {
     this.logger.log(`In func ${this.subscribePodcast.name}`);
     const podcast = await this.podcastModel.findOne({
       _id: podcastId,
+      status: Status.ACTIVE,
     });
     if (!podcast) {
       throw new NotFoundException('Podcast not found');

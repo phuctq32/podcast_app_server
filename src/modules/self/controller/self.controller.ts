@@ -137,7 +137,7 @@ export class SelfController {
     const paginationDto = new PaginationDto(paginationData);
     return await this.episodeService.getListenedEpisodes(
       requester.userId,
-      paginationDto,
+      paginationDto.getData(),
     );
   }
 

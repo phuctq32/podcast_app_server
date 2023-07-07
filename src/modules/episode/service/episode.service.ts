@@ -31,7 +31,10 @@ export class EpisodeService {
   async getEpisodeById(episodeId: string, userId: string) {
     this.logger.log(`In func ${this.getEpisodeById.name}`);
 
-    const episode = await this.episodeModel.findOne({ _id: episodeId });
+    const episode = await this.episodeModel.findOne({
+      _id: episodeId,
+      status: Status.ACTIVE,
+    });
     if (!episode) {
       throw new NotFoundException('Episode not found');
     }
@@ -46,7 +49,10 @@ export class EpisodeService {
   async createEpisode(dto: CreateEpisodeDto) {
     this.logger.log(`In func ${this.createEpisode.name}`);
 
-    const podcast = await this.podcastModel.findById(dto.podcast_id);
+    const podcast = await this.podcastModel.findOne({
+      _id: dto.podcast_id,
+      status: Status.ACTIVE,
+    });
     if (!podcast) {
       throw new NotFoundException('Podcast not found');
     }
@@ -79,7 +85,10 @@ export class EpisodeService {
   ) {
     this.logger.log(`In func ${this.updateEpisode.name}`);
 
-    const episode = await this.episodeModel.findOne({ _id: episodeId });
+    const episode = await this.episodeModel.findOne({
+      _id: episodeId,
+      status: Status.ACTIVE,
+    });
     if (!episode) {
       throw new NotFoundException('Episode not found');
     }
@@ -113,21 +122,21 @@ export class EpisodeService {
     }
 
     user.listened_episodes = user.listened_episodes.reverse();
+    await user.populate({
+      path: 'listened_episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
+    });
     const listenedEpisodesTotalCount = user.listened_episodes.length;
+    await user.depopulate('listened_episodes');
 
     if (!paginationDto) {
-      // const listenedEpisodes = await this.episodeModel
-      //   .find({
-      //     _id: { $in: user.listened_episodes },
-      //   })
-      //   .populate({
-      //     path: 'podcast',
-      //     populate: { path: 'author category' },
-      //   });
-      // return listenedEpisodes;
-
       await user.populate({
         path: 'listened_episodes',
+        match: {
+          status: Status.ACTIVE,
+        },
         populate: { path: 'podcast', populate: { path: 'author category' } },
       });
       return user.listened_episodes;
@@ -135,6 +144,9 @@ export class EpisodeService {
 
     await user.populate({
       path: 'listened_episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
       options: {
         skip: (paginationDto.offset - 1) * paginationDto.limit,
         limit: paginationDto.limit,
@@ -153,7 +165,10 @@ export class EpisodeService {
   }
 
   async listen(episodeId: string, userId: string) {
-    const episode = await this.episodeModel.findOne({ _id: episodeId });
+    const episode = await this.episodeModel.findOne({
+      _id: episodeId,
+      status: Status.ACTIVE,
+    });
     if (!episode) {
       throw new NotFoundException('Episode not found');
     }
@@ -186,6 +201,9 @@ export class EpisodeService {
   async getFavorite(userId: string) {
     const user = await this.userModel.findOne({ _id: userId }).populate({
       path: 'favorite_episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
       populate: {
         path: 'podcast',
         populate: 'author category',
@@ -219,7 +237,16 @@ export class EpisodeService {
 
     user.favorite_episodes.push(episode._id);
     await user.save();
-    await user.populate('favorite_episodes');
+    await user.populate({
+      path: 'favorite_episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
+      populate: {
+        path: 'podcast',
+        populate: 'author category',
+      },
+    });
 
     for (const ep of user.favorite_episodes) {
       await (ep as EpisodeDocument).checkListened(userId);
@@ -271,7 +298,16 @@ export class EpisodeService {
       (ep) => ep.toString() !== episode._id.toString(),
     );
     await user.save();
-    await user.populate(`${listName}_episodes`);
+    await user.populate({
+      path: `${listName}_episodes`,
+      match: {
+        status: Status.ACTIVE,
+      },
+      populate: {
+        path: 'podcast',
+        populate: 'author category',
+      },
+    });
 
     for (const ep of user[`${listName}_episodes`]) {
       await (ep as EpisodeDocument).checkListened(userId);
@@ -287,6 +323,7 @@ export class EpisodeService {
       const episodes = await this.episodeModel
         .find(
           {
+            status: Status.ACTIVE,
             $text: {
               $search: searchStr,
               $caseSensitive: false,
@@ -306,6 +343,7 @@ export class EpisodeService {
     const episodes = await this.episodeModel
       .find(
         {
+          status: Status.ACTIVE,
           $text: {
             $search: searchStr,
             $caseSensitive: false,
@@ -323,6 +361,7 @@ export class EpisodeService {
       });
 
     const episodesTotalCount = await this.episodeModel.countDocuments({
+      status: Status.ACTIVE,
       $text: {
         $search: this.removeAccentsService.removeVietnameseAccents(searchTerm),
         $caseSensitive: false,

@@ -16,6 +16,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PaginationDto } from '../../../common/pagination/pagination.dto';
 import { PaginationService } from '../../../common/pagination/pagination.service';
 import { RemoveAccentsService } from '../../../common/remove-accents.service';
+import { Status } from '../../../common/constants';
 
 @Injectable()
 export class UserService {
@@ -229,10 +230,21 @@ export class UserService {
     }
 
     user.subscribed_podcasts = user.subscribed_podcasts.reverse();
+    await user.populate({
+      path: 'subscribed_podcasts',
+      match: {
+        status: Status.ACTIVE,
+      },
+    });
     const subscribedPodcastsTotalCount = user.subscribed_podcasts.length;
+    user.depopulate('subscribed_podcasts');
+
     if (!paginationDto) {
       await user.populate({
         path: 'subscribed_podcasts',
+        match: {
+          status: Status.ACTIVE,
+        },
         populate: {
           path: 'author category',
         },
@@ -247,6 +259,9 @@ export class UserService {
 
     await user.populate({
       path: 'subscribed_podcasts',
+      match: {
+        status: Status.ACTIVE,
+      },
       options: {
         skip: (paginationDto.offset - 1) * paginationDto.limit,
         limit: paginationDto.limit,

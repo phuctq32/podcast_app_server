@@ -5,6 +5,8 @@ import { User, UserSchemaFactory } from '../../entities/user.entity';
 import { HashService } from '../../utils/hash/hash.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JWTModule } from '../../utils/jwt/jwt.module';
+import { RemoveAccentsService } from '../../common/remove-accents.service';
+import { PaginationService } from '../../common/pagination/pagination.service';
 
 @Module({
   imports: [
@@ -14,7 +16,12 @@ import { JWTModule } from '../../utils/jwt/jwt.module';
     JWTModule,
   ],
   controllers: [UserController],
-  providers: [UserService, HashService],
+  providers: [
+    UserService,
+    HashService,
+    RemoveAccentsService,
+    PaginationService,
+  ],
   exports: [MongooseModule, UserService],
 })
 export class UserModule {}

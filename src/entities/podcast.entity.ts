@@ -83,6 +83,9 @@ export const PodcastSchemaFactory = async (
   podcastSchema.methods.checkSubscription = async function (
     userId: string,
   ): Promise<void> {
+    if (this.author._id.toString() === userId) {
+      return;
+    }
     const user = await userModel.findOne({
       _id: userId,
       subscribed_podcasts: { $in: [this._id] },

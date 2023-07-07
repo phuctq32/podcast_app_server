@@ -13,6 +13,9 @@ import { ChangePasswordUserDto } from '../dto/change-password-user.dto';
 import { CreateChannelDto } from '../dto/create-channel.dto';
 import { JwtPayload } from '../../../utils/jwt/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import { PaginationDto } from '../../../common/pagination/pagination.dto';
+import { PaginationService } from '../../../common/pagination/pagination.service';
+import { RemoveAccentsService } from '../../../common/remove-accents.service';
 
 @Injectable()
 export class UserService {
@@ -21,6 +24,8 @@ export class UserService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly hashService: HashService,
     private readonly jwtService: JwtService,
+    private readonly paginationService: PaginationService,
+    private readonly removeAccentsService: RemoveAccentsService,
   ) {}
 
   async getUserById(id: string) {
@@ -77,6 +82,22 @@ export class UserService {
     return user;
   }
 
+  async getChannel(channelId: string, requesterId: string) {
+    const user = await this.getUserById(channelId);
+    await user.populate({
+      path: 'podcasts',
+      populate: {
+        path: 'category',
+      },
+    });
+    for (let i = 0; i < user.podcasts.length; i++) {
+      await user.podcasts[i].calcViews();
+      await user.podcasts[i].checkSubscription(requesterId);
+    }
+
+    return user;
+  }
+
   async createChannel(dto: CreateChannelDto) {
     this.logger.log(`In func ${this.createChannel.name}`);
     const user = await this.getUserById(dto.userId);
@@ -110,11 +131,65 @@ export class UserService {
     return user;
   }
 
+  async searchChannel(searchTerm: string, paginationDto: PaginationDto) {
+    const searchStr =
+      this.removeAccentsService.removeVietnameseAccents(searchTerm);
+    if (!paginationDto) {
+      const users = await this.userModel
+        .find(
+          {
+            is_creator: true,
+            $text: {
+              $search: searchStr,
+              $caseSensitive: false,
+              $diacriticSensitive: false,
+            },
+          },
+          { score: { $meta: 'textScore' } },
+        )
+        .sort({ score: { $meta: 'textScore' } });
+      return users;
+    }
+
+    const users = await this.userModel
+      .find(
+        {
+          is_creator: true,
+          $text: {
+            $search: searchStr,
+            $caseSensitive: false,
+            $diacriticSensitive: false,
+          },
+        },
+        { score: { $meta: 'textScore' } },
+      )
+      .sort({ score: { $meta: 'textScore' } })
+      .skip((paginationDto.offset - 1) * paginationDto.limit)
+      .limit(paginationDto.limit);
+
+    const usersTotalCount = await this.userModel.countDocuments({
+      is_creator: true,
+      $text: {
+        $search: this.removeAccentsService.removeVietnameseAccents(searchTerm),
+        $caseSensitive: false,
+        $diacriticSensitive: false,
+      },
+    });
+
+    return {
+      data: users,
+      pagination: this.paginationService.getInformation(
+        paginationDto,
+        usersTotalCount,
+      ),
+    };
+  }
+
   async getSearchHistory(userId: string) {
     this.logger.log(`In func ${this.getSearchHistory.name}`);
     const user = await this.getUserById(userId);
 
-    return user.search_history;
+    return user.search_history.reverse();
   }
 
   async removeAnItemFromSearchHistory(userId: string, searchStr: string) {

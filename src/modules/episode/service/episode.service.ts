@@ -253,8 +253,10 @@ export class EpisodeService {
           { score: { $meta: 'textScore' } },
         )
         .sort({ score: { $meta: 'textScore' } })
-        .populate('podcast')
-        .populate('podcast.author podcast.category');
+        .populate({
+          path: 'podcast',
+          populate: { path: 'author category' },
+        });
       return episodes;
     }
 
@@ -272,8 +274,10 @@ export class EpisodeService {
       .sort({ score: { $meta: 'textScore' } })
       .skip((paginationDto.offset - 1) * paginationDto.limit)
       .limit(paginationDto.limit)
-      .populate('podcast')
-      .populate('podcast.author podcast.category');
+      .populate({
+        path: 'podcast',
+        populate: { path: 'author category' },
+      });
 
     const episodesTotalCount = await this.episodeModel.countDocuments({
       $text: {

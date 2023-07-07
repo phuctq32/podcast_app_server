@@ -115,16 +115,36 @@ export class PodcastService {
     return podcast;
   }
 
-  async searchPodcasts(searchTerm: string, paginationDto: PaginationDto) {
-    const search =
+  async searchPodcasts(
+    searchTerm: string,
+    paginationDto: PaginationDto,
+    userId: string,
+  ) {
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const currentSearchHistory = user.search_history;
+    let updatedSearchHistory = currentSearchHistory;
+    if (currentSearchHistory.includes(searchTerm)) {
+      updatedSearchHistory = currentSearchHistory.filter(
+        (s) => s !== searchTerm,
+      );
+      updatedSearchHistory.push(searchTerm);
+    } else {
+      updatedSearchHistory.push(searchTerm);
+    }
+    user.search_history = updatedSearchHistory;
+    await user.save();
+
+    const searchStr =
       this.removeAccentsService.removeVietnameseAccents(searchTerm);
     if (!paginationDto) {
       const podcasts = await this.podcastModel
         .find(
           {
             $text: {
-              $search:
-                this.removeAccentsService.removeVietnameseAccents(searchTerm),
+              $search: searchStr,
               $caseSensitive: false,
             },
           },
@@ -132,6 +152,10 @@ export class PodcastService {
         )
         .sort({ score: { $meta: 'textScore' } })
         .populate('author category');
+      for (let i = 0; i < podcasts.length; i++) {
+        await podcasts[i].calcViews();
+        await podcasts[i].checkSubscription(userId);
+      }
       return podcasts;
     }
 
@@ -158,6 +182,10 @@ export class PodcastService {
         $diacriticSensitive: false,
       },
     });
+    for (let i = 0; i < podcasts.length; i++) {
+      await podcasts[i].calcViews();
+      await podcasts[i].checkSubscription(userId);
+    }
 
     return {
       data: podcasts,

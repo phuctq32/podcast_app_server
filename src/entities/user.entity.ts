@@ -3,7 +3,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from './base.entity';
 import { EpisodePopulatedDoc } from './episode.entity';
-import { PodcastPopulatedDoc } from './podcast.entity';
+import { Podcast, PodcastPopulatedDoc } from './podcast.entity';
+import { ArrayClassTransform } from '../common/decorators/transform.decorator';
 
 export type UserDocument = HydratedDocument<User>;
 export type UserPopulatedDoc = PopulatedDoc<User>;
@@ -13,6 +14,8 @@ export type UserPopulatedDoc = PopulatedDoc<User>;
     createdAt: 'created_at',
     updatedAt: 'updated_at',
   },
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
 })
 export class User extends BaseEntity {
   @Prop({
@@ -49,7 +52,7 @@ export class User extends BaseEntity {
    * When user register to be a creator, channel_name is required.
    * If user is not creator, channel_name is undefined
    */
-  @Prop()
+  @Prop({ default: null })
   channel_name: string;
 
   /**
@@ -110,10 +113,20 @@ export class User extends BaseEntity {
     token: string;
     expired_at: number;
   };
+
+  @ArrayClassTransform(() => Podcast)
+  podcasts: PodcastPopulatedDoc[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
 export const UserSchemaFactory = async () => {
+  const userSchema = UserSchema;
+
+  userSchema.virtual('podcasts', {
+    ref: 'Podcast',
+    localField: '_id',
+    foreignField: 'author',
+  });
   return UserSchema;
 };

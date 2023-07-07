@@ -88,6 +88,7 @@ export class PodcastController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async searchPodcasts(
+    @Requester() requester: JwtPayload,
     @Query('q') searchTerm: string,
     @Query() paginationData: PaginationParams,
   ) {
@@ -95,6 +96,7 @@ export class PodcastController {
     return await this.podcastService.searchPodcasts(
       searchTerm,
       paginationDto.getData(),
+      requester.userId,
     );
   }
 }

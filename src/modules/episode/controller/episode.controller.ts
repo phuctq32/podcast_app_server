@@ -35,20 +35,6 @@ import {
 export class EpisodeController {
   constructor(private readonly episodeService: EpisodeService) {}
 
-  @ApiOperation({ summary: 'Get an episode by id' })
-  @ApiBearerAuth('JWT')
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  async getEpisodeById(
-    @Requester() requester: JwtPayload,
-    @Param('id', MongoIdValidationPipe) episodeId: string,
-  ) {
-    return await this.episodeService.getEpisodeById(
-      episodeId,
-      requester.userId,
-    );
-  }
-
   @ApiOperation({ summary: 'Create an episode' })
   @ApiBearerAuth('JWT')
   @Post()
@@ -89,6 +75,7 @@ export class EpisodeController {
     @Query() paginationData: PaginationParams,
   ) {
     const paginationDto = new PaginationDto(paginationData);
+    console.log(paginationDto);
     return await this.episodeService.searchEpisodes(
       searchTerm,
       paginationDto.getData(),
@@ -106,5 +93,19 @@ export class EpisodeController {
     @Param('id', MongoIdValidationPipe) episodeId: string,
   ) {
     return await this.episodeService.deleteById(episodeId, requester.userId);
+  }
+
+  @ApiOperation({ summary: 'Get an episode by id' })
+  @ApiBearerAuth('JWT')
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getEpisodeById(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) episodeId: string,
+  ) {
+    return await this.episodeService.getEpisodeById(
+      episodeId,
+      requester.userId,
+    );
   }
 }

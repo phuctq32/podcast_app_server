@@ -50,21 +50,6 @@ export class PodcastController {
     return await this.podcastService.createPodcast(dto);
   }
 
-  @ApiOperation({ summary: 'Get podcast by id' })
-  @ApiBearerAuth('JWT')
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  async getPodcastById(
-    @Requester() requester: JwtPayload,
-    @Param('id', MongoIdValidationPipe) podcastId: string,
-  ) {
-    return await this.podcastService.getPodcastById(
-      podcastId,
-      requester.userId,
-    );
-  }
-
   @ApiOperation({ summary: 'Update podcast' })
   @ApiBearerAuth('JWT')
   @Patch(':id')
@@ -159,6 +144,21 @@ export class PodcastController {
     @Param('id', MongoIdValidationPipe) podcastId: string,
   ) {
     return await this.podcastService.deleteAllEpisodesByPodcastId(
+      podcastId,
+      requester.userId,
+    );
+  }
+
+  @ApiOperation({ summary: 'Get podcast by id' })
+  @ApiBearerAuth('JWT')
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getPodcastById(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) podcastId: string,
+  ) {
+    return await this.podcastService.getPodcastById(
       podcastId,
       requester.userId,
     );

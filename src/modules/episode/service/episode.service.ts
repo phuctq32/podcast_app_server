@@ -328,11 +328,11 @@ export class EpisodeService {
       throw new NotFoundException('Episode not found');
     }
 
-    if (!user.favorite_episodes.includes(episode._id)) {
+    if (!user[`${listName}_episodes`].includes(episode._id)) {
       throw new BadRequestException(`Episode not exist in ${listName} list`);
     }
 
-    user.favorite_episodes = user.favorite_episodes.filter(
+    user[`${listName}_episodes`] = user[`${listName}_episodes`].filter(
       (ep) => ep.toString() !== episode._id.toString(),
     );
     await user.save();

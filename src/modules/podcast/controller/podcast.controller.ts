@@ -84,7 +84,7 @@ export class PodcastController {
 
   @ApiOperation({ summary: 'Search podcasts' })
   @ApiBearerAuth('JWT')
-  @Post('/search')
+  @Get('/search')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async searchPodcasts(
@@ -96,6 +96,39 @@ export class PodcastController {
     return await this.podcastService.searchPodcasts(
       searchTerm,
       paginationDto.getData(),
+      requester.userId,
+    );
+  }
+
+  // Subscribe
+  @ApiOperation({ summary: 'Subscribe podcast' })
+  @ApiBearerAuth('JWT')
+  @Post(':id/subscribe')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Subscribed podcast')
+  async subscribePodcast(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) podcastId: string,
+  ) {
+    return await this.podcastService.subscribePodcast(
+      podcastId,
+      requester.userId,
+    );
+  }
+
+  @ApiOperation({ summary: 'Unsubscribe podcast' })
+  @ApiBearerAuth('JWT')
+  @Post(':id/unsubscribe')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Unsubscribed podcast')
+  async unsubscribePodcast(
+    @Requester() requester: JwtPayload,
+    @Param('id', MongoIdValidationPipe) podcastId: string,
+  ) {
+    return await this.podcastService.unsubscribePodcast(
+      podcastId,
       requester.userId,
     );
   }

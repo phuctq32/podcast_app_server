@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Query,
   UseGuards,
   UseInterceptors,
@@ -51,7 +50,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Search channel' })
   @ApiBearerAuth('JWT')
-  @Post('/channels/search')
+  @Get('/channels/search')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async searchEpisodes(

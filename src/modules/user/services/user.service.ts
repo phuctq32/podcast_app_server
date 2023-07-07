@@ -192,7 +192,80 @@ export class UserService {
     return user.search_history.reverse();
   }
 
-  async removeAnItemFromSearchHistory(userId: string, searchStr: string) {
-    this.logger.log(`In func ${this.removeAnItemFromSearchHistory.name}`);
+  async removeFromSearchHistory(userId: string, searchTerm: string) {
+    this.logger.log(`In func ${this.removeFromSearchHistory.name}`);
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (!user.search_history.includes(searchTerm)) {
+      throw new BadRequestException(
+        `${searchTerm} not exists in search history`,
+      );
+    }
+    user.search_history = user.search_history.filter((s) => s !== searchTerm);
+    await user.save();
+
+    return user.search_history.reverse();
+  }
+
+  async removeAllFromSearchHistory(userId: string) {
+    this.logger.log(`In func ${this.removeAllFromSearchHistory.name}`);
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.search_history = [];
+    await user.save();
+
+    return user.search_history;
+  }
+
+  async getSubscribedPodcasts(userId: string, paginationDto: PaginationDto) {
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.subscribed_podcasts = user.subscribed_podcasts.reverse();
+    const subscribedPodcastsTotalCount = user.subscribed_podcasts.length;
+    if (!paginationDto) {
+      await user.populate({
+        path: 'subscribed_podcasts',
+        populate: {
+          path: 'author category',
+        },
+      });
+      for (let i = 0; i < user.subscribed_podcasts.length; i++) {
+        await user.subscribed_podcasts[i].calcViews();
+        await user.subscribed_podcasts[i].checkSubscription(userId);
+      }
+
+      return user.subscribed_podcasts;
+    }
+
+    await user.populate({
+      path: 'subscribed_podcasts',
+      options: {
+        skip: (paginationDto.offset - 1) * paginationDto.limit,
+        limit: paginationDto.limit,
+      },
+      populate: {
+        path: 'author category',
+      },
+    });
+    for (let i = 0; i < user.subscribed_podcasts.length; i++) {
+      await user.subscribed_podcasts[i].calcViews();
+      await user.subscribed_podcasts[i].checkSubscription(userId);
+    }
+
+    return {
+      data: user.subscribed_podcasts,
+      pagination: this.paginationService.getInformation(
+        paginationDto,
+        subscribedPodcastsTotalCount,
+      ),
+    };
   }
 }

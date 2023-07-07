@@ -80,7 +80,7 @@ export class EpisodeController {
 
   @ApiOperation({ summary: 'Search episodes' })
   @ApiBearerAuth('JWT')
-  @Post('/search')
+  @Get('/search')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async searchEpisodes(

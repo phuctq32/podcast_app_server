@@ -195,4 +195,81 @@ export class PodcastService {
       ),
     };
   }
+
+  async unsubscribePodcast(podcastId: string, userId: string) {
+    this.logger.log(`In func ${this.unsubscribePodcast.name}`);
+    const podcast = await this.podcastModel.findOne({
+      _id: podcastId,
+    });
+    if (!podcast) {
+      throw new NotFoundException('Podcast not found');
+    }
+
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.subscribed_podcasts.includes(podcast._id)) {
+      throw new BadRequestException(
+        'User have not subscribed this channel yet',
+      );
+    }
+    user.subscribed_podcasts = user.subscribed_podcasts.filter(
+      (p) => p._id.toString() !== podcast._id.toString(),
+    );
+    await user.save();
+
+    await user.populate({
+      path: 'subscribed_podcasts',
+      populate: {
+        path: 'author category',
+      },
+    });
+    for (let i = 0; i < user.subscribed_podcasts.length; i++) {
+      await user.subscribed_podcasts[i].calcViews();
+      await user.subscribed_podcasts[i].checkSubscription(userId);
+    }
+
+    return user.subscribed_podcasts.reverse();
+  }
+
+  async subscribePodcast(podcastId: string, userId: string) {
+    this.logger.log(`In func ${this.subscribePodcast.name}`);
+    const podcast = await this.podcastModel.findOne({
+      _id: podcastId,
+    });
+    if (!podcast) {
+      throw new NotFoundException('Podcast not found');
+    }
+
+    const user = await this.userModel.findOne({ _id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (podcast.author.toString() === user._id.toString()) {
+      throw new BadRequestException('User can not subscribe his podcast');
+    }
+
+    if (user.subscribed_podcasts.includes(podcast._id)) {
+      throw new BadRequestException(
+        'User already subscribed this channel before',
+      );
+    }
+    user.subscribed_podcasts.push(podcast._id);
+    await user.save();
+
+    await user.populate({
+      path: 'subscribed_podcasts',
+      populate: {
+        path: 'author category',
+      },
+    });
+    for (let i = 0; i < user.subscribed_podcasts.length; i++) {
+      await user.subscribed_podcasts[i].calcViews();
+      await user.subscribed_podcasts[i].checkSubscription(userId);
+    }
+
+    return user.subscribed_podcasts.reverse();
+  }
 }

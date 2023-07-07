@@ -36,6 +36,7 @@ import {
   PaginationDto,
   PaginationParams,
 } from '../../../common/pagination/pagination.dto';
+import { Podcast } from '../../../entities/podcast.entity';
 
 @ApiTags('Self (The APIs for interacting with resource related to requester)')
 @Controller('users/self')
@@ -264,16 +265,30 @@ export class SelfController {
     return await this.userService.getSearchHistory(requester.userId);
   }
 
-  @ApiOperation({ summary: 'Remove a item in search history' })
+  @ApiOperation({ summary: 'Remove a search term from search history' })
   @ApiBearerAuth('JWT')
-  @Delete('search-history/:searchStr')
+  @Delete('search-history/:searchTerm')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async addToSearchHistory(
+  @ResponseMessage('Cleared search term')
+  async removeFromSearchHistory(
     @Requester() requester: JwtPayload,
-    @Param('searchStr') searchStr: string,
+    @Param('searchTerm') searchTerm: string,
   ) {
-    return await this.userService;
+    return await this.userService.removeFromSearchHistory(
+      requester.userId,
+      searchTerm.trim(),
+    );
+  }
+
+  @ApiOperation({ summary: 'Remove all from search history' })
+  @ApiBearerAuth('JWT')
+  @Delete('search-history')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Cleared search history')
+  async removeAllFromSearchHistory(@Requester() requester: JwtPayload) {
+    return await this.userService.removeAllFromSearchHistory(requester.userId);
   }
 
   @ApiOperation({ summary: 'Get current user channel info' })
@@ -286,6 +301,23 @@ export class SelfController {
     return await this.userService.getChannel(
       requester.userId,
       requester.userId,
+    );
+  }
+
+  @ApiOperation({ summary: 'Get subscribe podcast' })
+  @ApiBearerAuth('JWT')
+  @Get('subscribed-podcasts')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(MongooseClassSerializeInterceptor(Podcast))
+  @HttpCode(HttpStatus.OK)
+  async getSubscribedPodcasts(
+    @Requester() requester: JwtPayload,
+    @Query() paginationData: PaginationParams,
+  ) {
+    const paginationDto = new PaginationDto(paginationData);
+    return await this.userService.getSubscribedPodcasts(
+      requester.userId,
+      paginationDto.getData(),
     );
   }
 }

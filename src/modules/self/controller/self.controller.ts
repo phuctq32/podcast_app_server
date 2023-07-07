@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,6 +32,10 @@ import { CreatorGuard } from '../../../common/guards/creator.guard';
 import { EpisodeService } from '../../episode/service/episode.service';
 import { Episode } from '../../../entities/episode.entity';
 import { MongoIdValidationPipe } from '../../../common/validation/mongoid-validation.pipe';
+import {
+  PaginationDto,
+  PaginationParams,
+} from '../../../common/pagination/pagination.dto';
 
 @ApiTags('Self (The APIs for interacting with resource related to requester)')
 @Controller('users/self')
@@ -124,8 +129,15 @@ export class SelfController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(MongooseClassSerializeInterceptor(Episode))
   @HttpCode(HttpStatus.OK)
-  async getListenedEpisodes(@Requester() requester: JwtPayload) {
-    return await this.episodeService.getListenedEpisodes(requester.userId);
+  async getListenedEpisodes(
+    @Requester() requester: JwtPayload,
+    @Query() paginationData: PaginationParams,
+  ) {
+    const paginationDto = new PaginationDto(paginationData);
+    return await this.episodeService.getListenedEpisodes(
+      requester.userId,
+      paginationDto,
+    );
   }
 
   @ApiOperation({

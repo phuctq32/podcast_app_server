@@ -104,13 +104,50 @@ export class EpisodeService {
   }
 
   // listen
-  async getListenedEpisodes(userId: string) {
+  async getListenedEpisodes(userId: string, paginationDto: PaginationDto) {
     const user = await this.userModel.findOne({ _id: userId });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    await user.populate('listened_episodes');
-    return user.listened_episodes;
+
+    user.listened_episodes = user.listened_episodes.reverse();
+    const listenedEpisodesTotalCount = user.listened_episodes.length;
+
+    if (!paginationDto) {
+      // const listenedEpisodes = await this.episodeModel
+      //   .find({
+      //     _id: { $in: user.listened_episodes },
+      //   })
+      //   .populate({
+      //     path: 'podcast',
+      //     populate: { path: 'author category' },
+      //   });
+      // return listenedEpisodes;
+
+      await user.populate({
+        path: 'listened_episodes',
+        populate: { path: 'podcast', populate: { path: 'author category' } },
+      });
+      return user.listened_episodes;
+    }
+
+    await user.populate({
+      path: 'listened_episodes',
+      options: {
+        skip: (paginationDto.offset - 1) * paginationDto.limit,
+        limit: paginationDto.limit,
+      },
+      populate: { path: 'podcast', populate: { path: 'author category' } },
+    });
+    console.log(user.listened_episodes);
+
+    return {
+      data: user.listened_episodes,
+      pagination: this.paginationService.getInformation(
+        paginationDto,
+        listenedEpisodesTotalCount,
+      ),
+    };
   }
 
   async listen(episodeId: string, userId: string) {

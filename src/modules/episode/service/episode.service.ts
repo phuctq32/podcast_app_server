@@ -307,7 +307,7 @@ export class EpisodeService {
       throw new NotFoundException('User not found');
     }
 
-    user[`${listName}_episode`] = [];
+    user[`${listName}_episodes`] = [];
     await user.save();
 
     return [];

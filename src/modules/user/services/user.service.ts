@@ -87,6 +87,9 @@ export class UserService {
     const user = await this.getUserById(channelId);
     await user.populate({
       path: 'podcasts',
+      match: {
+        status: Status.ACTIVE,
+      },
       populate: {
         path: 'author category',
       },

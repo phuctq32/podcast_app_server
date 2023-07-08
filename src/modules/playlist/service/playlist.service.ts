@@ -10,6 +10,7 @@ import { Model } from 'mongoose';
 import { User } from '../../../entities/user.entity';
 import { Episode } from '../../../entities/episode.entity';
 import { CreatePlaylistDto } from '../../user/dto/create-playlist.dto';
+import { Status } from '../../../common/constants';
 
 @Injectable()
 export class PlaylistService {
@@ -109,6 +110,9 @@ export class PlaylistService {
 
     await playlist.populate({
       path: 'episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
       populate: {
         path: 'podcast',
         populate: {
@@ -150,6 +154,9 @@ export class PlaylistService {
     await playlist.save();
     await playlist.populate({
       path: 'episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
       populate: {
         path: 'podcast',
         populate: {
@@ -216,6 +223,9 @@ export class PlaylistService {
     await playlist.save();
     await playlist.populate({
       path: 'episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
       populate: {
         path: 'podcast',
         populate: {

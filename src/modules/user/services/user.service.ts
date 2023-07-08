@@ -88,7 +88,7 @@ export class UserService {
     await user.populate({
       path: 'podcasts',
       populate: {
-        path: 'category',
+        path: 'author category',
       },
     });
     for (let i = 0; i < user.podcasts.length; i++) {

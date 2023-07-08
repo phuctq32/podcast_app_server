@@ -14,7 +14,13 @@ import {
 } from '../../../configs/multer.config';
 import { Express } from 'express';
 import { ResponseMessage } from '../../../common/decorators/message-response.decorator';
-import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { MediaService } from '../service/media.service';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { CreatorGuard } from '../../../common/guards/creator.guard';
@@ -42,6 +48,7 @@ export class MediaController {
       required: ['file'],
     },
   })
+  @ApiBearerAuth('JWT')
   @Post('audio/upload')
   @UseGuards(JwtAuthGuard, CreatorGuard)
   @UseInterceptors(FileInterceptor('file', multerOptionsForAudioFile))
@@ -68,6 +75,7 @@ export class MediaController {
       required: ['file'],
     },
   })
+  @ApiBearerAuth('JWT')
   @Post('image/upload')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file', multerOptionsForImageFile))

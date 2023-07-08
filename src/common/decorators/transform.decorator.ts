@@ -22,13 +22,15 @@ const ObjectIdTypeTransform = (classToTransform: () => ClassConstructor<any>) =>
         return undefined;
       }
 
-      if (Types.ObjectId.isValid(object[property][0].toString())) {
+      if (Types.ObjectId.isValid(object[property][0]?.toString())) {
         return String;
       }
+
+      return classToTransform();
     }
 
     // If object[property] is an ObjectId, return undefined (still keep value, not transform)
-    if (Types.ObjectId.isValid(object[property].toString())) {
+    if (Types.ObjectId.isValid(object[property]?.toString())) {
       return String;
     }
 

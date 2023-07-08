@@ -4,6 +4,7 @@ import mongoose, { HydratedDocument, PopulatedDoc, Types } from 'mongoose';
 import { Exclude } from 'class-transformer';
 import { ArrayClassTransform } from '../common/decorators/transform.decorator';
 import { Episode, EpisodePopulatedDoc } from './episode.entity';
+import { Status } from '../common/constants';
 
 export type PlaylistDocument = HydratedDocument<Playlist>;
 export type PlaylistPopulatedDoc = PopulatedDoc<PlaylistDocument>;
@@ -21,14 +22,20 @@ export class Playlist extends BaseEntity {
   @Exclude()
   user: Types.ObjectId;
 
-  calcNumEpisodes: () => void;
+  calcNumEpisodes: () => Promise<void>;
 }
 
 export const PlaylistSchema = SchemaFactory.createForClass(Playlist);
 
 export const PlaylistSchemaFactory = async () => {
   const playlistSchema = PlaylistSchema;
-  playlistSchema.methods.calcNumEpisodes = function () {
+  playlistSchema.methods.calcNumEpisodes = async function () {
+    await this.populate({
+      path: 'episodes',
+      match: {
+        status: Status.ACTIVE,
+      },
+    });
     this._doc.num_episodes = this.episodes.length;
     delete this._doc.episodes;
   };

@@ -84,9 +84,9 @@ export class PlaylistService {
     const playlists: PlaylistDocument[] = await this.playlistModel.find({
       user: user._id,
     });
-    playlists.forEach((playlist) => {
-      playlist.calcNumEpisodes();
-    });
+    for (let i = 0; i < playlists.length; i++) {
+      await playlists[i].calcNumEpisodes();
+    }
 
     return playlists;
   }

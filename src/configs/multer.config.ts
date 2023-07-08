@@ -41,7 +41,7 @@ function multerOptions(fileSize: number, acceptedFileMimetypes: string[]) {
   } as MulterOptions;
 }
 
-const acceptedAudioFileMimetypes = ['mp3', 'aac', 'x-aac'];
+const acceptedAudioFileMimetypes = ['mp3', 'aac', 'x-aac', 'mpeg'];
 export const multerOptionsForAudioFile = multerOptions(
   30 * 1024 * 1024,
   acceptedAudioFileMimetypes,

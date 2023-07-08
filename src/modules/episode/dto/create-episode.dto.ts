@@ -29,6 +29,7 @@ export class CreateEpisodeDto {
   href: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsNotEmpty()
   @IsUrl()
   image: string;
